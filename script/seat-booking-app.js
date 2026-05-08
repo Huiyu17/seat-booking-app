@@ -478,11 +478,40 @@ seatElements.forEach((seat) => {
 
         };
     });
-    // allow keyboard activation via Enter or Space
+    // allow keyboard activation via Enter/Space and arrow key navigation
     seat.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             seat.click();
+            return;
+        }
+
+        const arrowKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
+        if (!arrowKeys.includes(e.key)) return;
+        e.preventDefault();
+
+        const row = seat.parentElement;
+        const seatIndex = Array.from(row.children).indexOf(seat);
+        let targetSeat = null;
+
+        if (e.key === 'ArrowRight') {
+            targetSeat = seat.nextElementSibling;
+        } else if (e.key === 'ArrowLeft') {
+            targetSeat = seat.previousElementSibling;
+        } else if (e.key === 'ArrowDown') {
+            const nextRow = row.nextElementSibling;
+            if (nextRow && nextRow.classList.contains('row')) {
+                targetSeat = nextRow.children[Math.min(seatIndex, nextRow.children.length - 1)];
+            }
+        } else if (e.key === 'ArrowUp') {
+            const prevRow = row.previousElementSibling;
+            if (prevRow && prevRow.classList.contains('row')) {
+                targetSeat = prevRow.children[Math.min(seatIndex, prevRow.children.length - 1)];
+            }
+        }
+
+        if (targetSeat && targetSeat.classList.contains('seat')) {
+            targetSeat.focus();
         }
     });
 });
