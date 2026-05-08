@@ -532,6 +532,7 @@ serviceUpdateBtn.addEventListener('click', () => {
 
     showingRoom1.cacheServices();
     showingRoom1.renderCurrentServiceData();
+    showingRoom1.updateOrderDetails();
 
     console.log(`"${inputServiceName}" has been successfully updated`)
     localStorageSpace();
