@@ -459,6 +459,25 @@ function focusNextSectorFromSeat(seat, delta) {
     return true;
 }
 
+function showSeatInfo(seat) {
+    if (!seat || !seat.id) return;
+    const parent = seat.parentElement;
+    if (!parent) return;
+    const existing = parent.querySelector(`.seat__info`);
+    if (existing) existing.remove();
+    const seatInfo = document.createElement('div');
+    seatInfo.classList.add(`seat__info`);
+    seatInfo.textContent = seat.id;
+    parent.appendChild(seatInfo);
+}
+
+function hideSeatInfo(seat) {
+    const parent = seat?.parentElement;
+    if (!parent) return;
+    const existing = parent.querySelector(`.seat__info`);
+    if (existing) existing.remove();
+}
+
 function initializeApp(instanceName) {
     console.log(`Seat-Booking App instance "${instanceName}" has been successfully created!`);
     return new SeatBookingApp(instanceName);
@@ -506,15 +525,12 @@ const seatElements = document.querySelectorAll('.seat');
 document.querySelectorAll(`.sector`).forEach((sector) => ensureSectorTabStop(sector));
 seatElements.forEach((seat) => {
     // show seat label on mouseover
-    seat.addEventListener('mouseover', (e) => {
-        const seatInfo = document.createElement('div');
-        seatInfo.classList.add(`seat__info`);
-        seatInfo.textContent = e.target.id;
-        e.target.parentElement.appendChild(seatInfo);
+    seat.addEventListener('mouseover', () => {
+        showSeatInfo(seat);
     })
     // hide seat label on mouseleave
     seat.addEventListener('mouseleave', () => {
-        document.querySelector(`.seat__info`).remove();
+        hideSeatInfo(seat);
     })
     // toggle seat as reserved on click
     seat.addEventListener('click', (e) => {
@@ -580,6 +596,10 @@ seatElements.forEach((seat) => {
     });
     seat.addEventListener('focus', () => {
         setSectorTabStopForSeat(seat);
+        showSeatInfo(seat);
+    })
+    seat.addEventListener('blur', () => {
+        hideSeatInfo(seat);
     })
 });
 
