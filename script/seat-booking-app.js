@@ -350,7 +350,7 @@ class Sector {
                     const seatElement = document.createElement('div');
                     seatElement.classList.add(`seat`);
                     seatElement.setAttribute(`id`, seats[j].seat);
-                    seatElement.setAttribute(`tabindex`, `0`);
+                    seatElement.setAttribute(`tabindex`, `-1`);
                     seatElement.setAttribute(`role`, `button`);
                     seatElement.setAttribute(`aria-label`, `Seat ${seats[j].seat}`);
                     seatElement.setAttribute(`aria-pressed`, `false`);
@@ -404,6 +404,61 @@ const localStorageSpace = function(){
 };
 
 // APP FUNCTIONS --------------------------------------------------------------
+function isSeatBooked(seat) {
+    return seat.classList.contains(`seat--booked`);
+}
+
+function ensureSectorTabStop(sector) {
+    if (!sector) return;
+    const current = sector.querySelector(`.seat[tabindex="0"]`);
+    if (current && !isSeatBooked(current)) return;
+
+    if (current) current.setAttribute(`tabindex`, `-1`);
+    const firstAvailable = Array.from(sector.querySelectorAll(`.seat`)).find((seat) => !isSeatBooked(seat));
+    if (firstAvailable) firstAvailable.setAttribute(`tabindex`, `0`);
+}
+
+function setSectorTabStopForSeat(seat) {
+    if (!seat || isSeatBooked(seat)) return;
+    const sector = seat.closest(`.sector`);
+    if (!sector) return;
+    const current = sector.querySelector(`.seat[tabindex="0"]`);
+    if (current && current !== seat) current.setAttribute(`tabindex`, `-1`);
+    seat.setAttribute(`tabindex`, `0`);
+}
+
+function getOrderedSectors() {
+    return Array.from(document.querySelectorAll(`.sector`))
+        .map((sector) => {
+            const rect = sector.getBoundingClientRect();
+            return {
+                sector,
+                x: rect.left + rect.width / 2,
+                y: rect.top + rect.height / 2
+            };
+        })
+        .sort((a, b) => (a.y - b.y) || (a.x - b.x))
+        .map((item) => item.sector);
+}
+
+function focusNextSectorFromSeat(seat, delta) {
+    const sectors = getOrderedSectors();
+    const currentSector = seat.closest(`.sector`);
+    const currentIndex = currentSector ? sectors.indexOf(currentSector) : -1;
+    if (currentIndex === -1) return false;
+
+    const nextSector = sectors[currentIndex + delta];
+    if (!nextSector) return false;
+
+    ensureSectorTabStop(nextSector);
+    const targetSeat = nextSector.querySelector(`.seat[tabindex="0"]`) || nextSector.querySelector(`.seat`);
+    if (!targetSeat) return false;
+
+    setSectorTabStopForSeat(targetSeat);
+    targetSeat.focus();
+    return true;
+}
+
 function initializeApp(instanceName) {
     console.log(`Seat-Booking App instance "${instanceName}" has been successfully created!`);
     return new SeatBookingApp(instanceName);
@@ -422,6 +477,7 @@ function renderBookedSeats() {
                 seat.classList.remove(`seat--booked`)
             }
         });
+        document.querySelectorAll(`.sector`).forEach((sector) => ensureSectorTabStop(sector));
     }
 };
 
@@ -447,6 +503,7 @@ renderBookedSeats();
 // GET ELEMENTS FROM DOM ------------------------------------------------------
 // get all rendered seat elements
 const seatElements = document.querySelectorAll('.seat');
+document.querySelectorAll(`.sector`).forEach((sector) => ensureSectorTabStop(sector));
 seatElements.forEach((seat) => {
     // show seat label on mouseover
     seat.addEventListener('mouseover', (e) => {
@@ -465,6 +522,7 @@ seatElements.forEach((seat) => {
         if (!seat.classList.contains(`seat--booked`)) {
             e.target.classList.toggle('seat--reserved');
             seat.setAttribute(`aria-pressed`, seat.classList.contains(`seat--reserved`) ? `true` : `false`);
+            setSectorTabStopForSeat(seat);
             // get current service
             const currentService = showingRoom1.getCurrentService()
             if(seat.classList.contains(`seat--reserved`)) {
@@ -480,6 +538,12 @@ seatElements.forEach((seat) => {
     });
     // allow keyboard activation via Enter/Space and arrow key navigation
     seat.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
+            const moved = focusNextSectorFromSeat(seat, e.shiftKey ? -1 : 1);
+            if (moved) e.preventDefault();
+            return;
+        }
+
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             seat.click();
@@ -514,6 +578,9 @@ seatElements.forEach((seat) => {
             targetSeat.focus();
         }
     });
+    seat.addEventListener('focus', () => {
+        setSectorTabStopForSeat(seat);
+    })
 });
 
 // get `current service` dropdown element
