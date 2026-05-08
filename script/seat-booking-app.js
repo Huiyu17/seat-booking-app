@@ -116,22 +116,35 @@ class SeatBookingApp {
             throw Error(`Access to localStorage in this browser is not available. Data cannot be saved.`);
         }
     }
-    fetchServices() {
-        // fetch data from localStorage
-        const servicesJSON = JSON.parse(localStorage.getItem(`sba-services-${this.getName()}`));
+fetchServices() {
+    const servicesJSON = JSON.parse(localStorage.getItem(`sba-services-${this.getName()}`));
 
-        if(!servicesJSON) {
-            // if there's no data, notify user
-            console.log(`Let's add some services. Use the form on the left.`)
-        } else {
-            servicesJSON.forEach((service) => {
-                // create Service instances and add to app's array
-                const serviceInstance = (new Service(service._name, service._price))
-                serviceInstance.setBookedSeatsArray(service._seatsBooked);
-                this.addService(serviceInstance)
-            })
-        }
+    if(!servicesJSON) {
+        console.log(`Let's add some services. Use the form on the left.`)
+    } else {
+        servicesJSON.forEach((service) => {
+            // Defense 1: Validate data type
+            if (typeof service._name !== 'string' || typeof service._price !== 'number') {
+                console.warn('Invalid service data, skipping');
+                return;
+            }
+            
+            // Defense 2: Sanitize name and price
+            const sanitizedName = DOMPurify.sanitize(service._name);
+            const sanitizedPrice = Number(service._price);
+            
+            // Defense 3: Validate sanitized data
+            if (!sanitizedName || isNaN(sanitizedPrice)) {
+                console.warn('Sanitized service data invalid, skipping');
+                return;
+            }
+            
+            const serviceInstance = (new Service(sanitizedName, sanitizedPrice))
+            serviceInstance.setBookedSeatsArray(service._seatsBooked);
+            this.addService(serviceInstance)
+        })
     }
+}
     updateOrderDetails() {
         // get current service
         const currentService = this.getCurrentService();
@@ -143,10 +156,10 @@ class SeatBookingApp {
         const reservedSeats = currentService.getReservedSeats();
         // get and clear `order-details` container
         const container = document.querySelector(`#order-details`);
-        container.innerHTML = '';
+        container.textContent = '';
         // get and clear `total-price` <span> element
         const totalPriceContainer = document.querySelector(`#order-total-price`);
-        totalPriceContainer.innerHTML = '';
+        totalPriceContainer.textContent = '';
         let totalPrice = 0;
         // loop through reserved seats and render every element
         reservedSeats.forEach((seat) => {
@@ -173,7 +186,7 @@ class SeatBookingApp {
             // render updated total price element
             const totalPriceElement = document.createElement(`span`)
             totalPriceElement.textContent = `Total price: $${parseFloat(totalPrice.toFixed(2))}`
-            totalPriceContainer.innerHTML = '';
+            totalPriceContainer.textContent = '';
             totalPriceContainer.appendChild(totalPriceElement)
         })
     }
