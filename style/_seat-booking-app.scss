@@ -195,6 +195,13 @@
 
         }
 
+        &:focus-visible {
+            outline: 3px solid #ff6b00;
+            outline-offset: 2px;
+            transform: translateY(-.2rem) scale(1.1);
+            z-index: 1;
+        }
+
         &--reserved, &--reserved:hover, &--reserved:active {
             background-color: rgb(80, 229, 255);
             cursor: default;

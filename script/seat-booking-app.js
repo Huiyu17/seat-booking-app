@@ -350,6 +350,10 @@ class Sector {
                     const seatElement = document.createElement('div');
                     seatElement.classList.add(`seat`);
                     seatElement.setAttribute(`id`, seats[j].seat);
+                    seatElement.setAttribute(`tabindex`, `0`);
+                    seatElement.setAttribute(`role`, `button`);
+                    seatElement.setAttribute(`aria-label`, `Seat ${seats[j].seat}`);
+                    seatElement.setAttribute(`aria-pressed`, `false`);
                     // append seat to current row container
                     rowElement.appendChild(seatElement);
                 };
@@ -460,6 +464,7 @@ seatElements.forEach((seat) => {
         // if this seat is taken, don't do anything
         if (!seat.classList.contains(`seat--booked`)) {
             e.target.classList.toggle('seat--reserved');
+            seat.setAttribute(`aria-pressed`, seat.classList.contains(`seat--reserved`) ? `true` : `false`);
             // get current service
             const currentService = showingRoom1.getCurrentService()
             if(seat.classList.contains(`seat--reserved`)) {
@@ -472,6 +477,13 @@ seatElements.forEach((seat) => {
             }
 
         };
+    });
+    // allow keyboard activation via Enter or Space
+    seat.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            seat.click();
+        }
     });
 });
 
