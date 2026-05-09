@@ -35,21 +35,18 @@ class SeatBookingApp {
         return this._priceMultipliers;
     }
     renderSectorsList() {
-        // get price multipliers array
         const sectors = this.getPriceMultipliersArray()
-        // get container for sectors list (<ul>)
         const container = document.querySelector(`#sectors-list`);
-        // clear container
         container.innerHTML = "";
-        // populate container with existing sectors
         sectors.forEach((sector) => {
             const listElement = document.createElement('li');
-            const name = document.createElement('span')
-            name.textContent = sector.sector;
-            const price = document.createElement('input')
-            price.setAttribute('id', `price-${sector}`)
-            price.value = sector.priceMultiplier
-            listElement.appendChild(name);
+            const label = document.createElement('label');
+            label.setAttribute('for', `price-${sector.sector}`);
+            label.textContent = sector.sector;
+            const price = document.createElement('input');
+            price.setAttribute('id', `price-${sector.sector}`);
+            price.value = sector.priceMultiplier;
+            listElement.appendChild(label);
             listElement.appendChild(price);
             container.appendChild(listElement);
         })
