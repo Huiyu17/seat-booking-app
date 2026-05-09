@@ -272,12 +272,9 @@ class Service {
             if(this._seatsBooked.includes(seat.id)) {
             seat.classList.remove('seat--reserved');
             seat.classList.add('seat--booked');  
-            seat.setAttribute(`aria-disabled`, `true`);
-            seat.setAttribute(`tabindex`, `-1`);
-            seat.setAttribute(`aria-pressed`, `false`);
+            syncBookedSeatAccessibility(seat);
             } else {
-            seat.setAttribute(`aria-disabled`, `false`);
-            seat.setAttribute(`tabindex`, `0`);
+            syncBookedSeatAccessibility(seat);
             }
         })
     }
@@ -353,11 +350,10 @@ class Sector {
                 // check if seat belongs to current row
                 if (seats[j].row === `${sectorId}-${i + 1}`) {
                     // create seat element
-                    const seatElement = document.createElement('div');
+                    const seatElement = document.createElement('button');
+                    seatElement.type = 'button';
                     seatElement.classList.add(`seat`);
                     seatElement.setAttribute(`id`, seats[j].seat);
-                    seatElement.setAttribute(`tabindex`, `0`);
-                    seatElement.setAttribute(`role`, `button`);
                     seatElement.setAttribute(`aria-label`, `Seat ${seats[j].seat}`);
                     seatElement.setAttribute(`aria-pressed`, `false`);
                     seatElement.setAttribute(`aria-disabled`, `false`);
@@ -417,13 +413,9 @@ function isSeatBooked(seat) {
 
 function syncBookedSeatAccessibility(seat) {
     const booked = isSeatBooked(seat);
+    seat.disabled = booked;
     seat.setAttribute(`aria-disabled`, booked ? `true` : `false`);
-    if (booked) {
-        seat.setAttribute(`tabindex`, `-1`);
-        seat.setAttribute(`aria-pressed`, `false`);
-    } else {
-        seat.setAttribute(`tabindex`, `0`);
-    }
+    if (booked) seat.setAttribute(`aria-pressed`, `false`);
 }
 
 function parseSeatId(seatId) {
@@ -610,12 +602,6 @@ seatElements.forEach((seat) => {
     });
     // allow keyboard activation via Enter/Space and arrow key navigation
     seat.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            seat.click();
-            return;
-        }
-
         const arrowKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
         if (!arrowKeys.includes(e.key)) return;
         e.preventDefault();

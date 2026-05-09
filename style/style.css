@@ -36,6 +36,18 @@ form {
   background-color: beige;
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 #seat-booking-app {
   display: flex;
   flex-direction: row;
@@ -181,6 +193,11 @@ form {
   grid-auto-flow: column;
 }
 #seat-booking-app .seat {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
   display: inline-block;
   background-color: rgb(238, 243, 171);
   border-left: 2px solid rgb(141, 71, 20);
@@ -231,6 +248,14 @@ form {
   justify-content: center;
   align-items: center;
   box-shadow: 2px 2px 3px 0px rgba(0, 0, 0, 0.4);
+}
+
+@media (max-width: 768px) {
+  #seat-booking-app .seat {
+    min-width: 24px;
+    min-height: 24px;
+    margin: 8px 4px 4px;
+  }
 }
 
 /*# sourceMappingURL=style.css.map */
