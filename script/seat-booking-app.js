@@ -272,8 +272,14 @@ class Service {
             if(this._seatsBooked.includes(seat.id)) {
             seat.classList.remove('seat--reserved');
             seat.classList.add('seat--booked');  
+            seat.setAttribute(`aria-disabled`, `true`);
+            seat.setAttribute(`tabindex`, `-1`);
+            seat.setAttribute(`aria-pressed`, `false`);
+            } else {
+            seat.setAttribute(`aria-disabled`, `false`);
             }
         })
+        document.querySelectorAll(`.sector`).forEach((sector) => ensureSectorTabStop(sector));
     }
 };
 
@@ -408,6 +414,15 @@ function isSeatBooked(seat) {
     return seat.classList.contains(`seat--booked`);
 }
 
+function syncBookedSeatAccessibility(seat) {
+    const booked = isSeatBooked(seat);
+    seat.setAttribute(`aria-disabled`, booked ? `true` : `false`);
+    if (booked) {
+        seat.setAttribute(`tabindex`, `-1`);
+        seat.setAttribute(`aria-pressed`, `false`);
+    }
+}
+
 function ensureSectorTabStop(sector) {
     if (!sector) return;
     const current = sector.querySelector(`.seat[tabindex="0"]`);
@@ -451,12 +466,29 @@ function focusNextSectorFromSeat(seat, delta) {
     if (!nextSector) return false;
 
     ensureSectorTabStop(nextSector);
-    const targetSeat = nextSector.querySelector(`.seat[tabindex="0"]`) || nextSector.querySelector(`.seat`);
+    const targetSeat =
+        nextSector.querySelector(`.seat[tabindex="0"]`) ||
+        Array.from(nextSector.querySelectorAll(`.seat`)).find((s) => !isSeatBooked(s));
     if (!targetSeat) return false;
 
     setSectorTabStopForSeat(targetSeat);
     targetSeat.focus();
     return true;
+}
+
+function findNearestAvailableSeatInRow(row, preferredIndex) {
+    if (!row) return null;
+    const seats = Array.from(row.querySelectorAll(`.seat`));
+    if (seats.length === 0) return null;
+
+    const clampedIndex = Math.max(0, Math.min(preferredIndex, seats.length - 1));
+    for (let offset = 0; offset < seats.length; offset++) {
+        const leftIndex = clampedIndex - offset;
+        if (leftIndex >= 0 && !isSeatBooked(seats[leftIndex])) return seats[leftIndex];
+        const rightIndex = clampedIndex + offset;
+        if (rightIndex < seats.length && !isSeatBooked(seats[rightIndex])) return seats[rightIndex];
+    }
+    return null;
 }
 
 function showSeatInfo(seat) {
@@ -492,9 +524,11 @@ function renderBookedSeats() {
         seatElements.forEach((seat) => {
             if(bookedSeats.includes(seat.id)) {
                 seat.classList.add(`seat--booked`)
+                seat.classList.remove(`seat--reserved`)
             } else {
                 seat.classList.remove(`seat--booked`)
             }
+            syncBookedSeatAccessibility(seat);
         });
         document.querySelectorAll(`.sector`).forEach((sector) => ensureSectorTabStop(sector));
     }
@@ -571,26 +605,33 @@ seatElements.forEach((seat) => {
         e.preventDefault();
 
         const row = seat.parentElement;
-        const seatIndex = Array.from(row.children).indexOf(seat);
+        const seatsInCurrentRow = Array.from(row.querySelectorAll(`.seat`));
+        const seatIndex = seatsInCurrentRow.indexOf(seat);
         let targetSeat = null;
 
         if (e.key === 'ArrowRight') {
             targetSeat = seat.nextElementSibling;
+            while (targetSeat && targetSeat.classList && targetSeat.classList.contains(`seat`) && isSeatBooked(targetSeat)) {
+                targetSeat = targetSeat.nextElementSibling;
+            }
         } else if (e.key === 'ArrowLeft') {
             targetSeat = seat.previousElementSibling;
+            while (targetSeat && targetSeat.classList && targetSeat.classList.contains(`seat`) && isSeatBooked(targetSeat)) {
+                targetSeat = targetSeat.previousElementSibling;
+            }
         } else if (e.key === 'ArrowDown') {
             const nextRow = row.nextElementSibling;
             if (nextRow && nextRow.classList.contains('row')) {
-                targetSeat = nextRow.children[Math.min(seatIndex, nextRow.children.length - 1)];
+                targetSeat = findNearestAvailableSeatInRow(nextRow, seatIndex);
             }
         } else if (e.key === 'ArrowUp') {
             const prevRow = row.previousElementSibling;
             if (prevRow && prevRow.classList.contains('row')) {
-                targetSeat = prevRow.children[Math.min(seatIndex, prevRow.children.length - 1)];
+                targetSeat = findNearestAvailableSeatInRow(prevRow, seatIndex);
             }
         }
 
-        if (targetSeat && targetSeat.classList.contains('seat')) {
+        if (targetSeat && targetSeat.classList.contains('seat') && !isSeatBooked(targetSeat)) {
             targetSeat.focus();
         }
     });
