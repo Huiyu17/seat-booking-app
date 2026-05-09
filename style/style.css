@@ -5,18 +5,21 @@
 }
 
 html {
-  font-size: 100%;
+  font-size: clamp(14px, 0.35vw + 13px, 18px);
 }
 
 body {
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
-  justify-content: center;
-  align-items: center;
+  justify-content: flex-start;
+  align-items: stretch;
   min-height: 100vh;
+  min-height: 100dvh;
   width: 100%;
   font-size: 1rem;
+  padding: clamp(0.5rem, 2vw, 1.25rem);
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
 
 img {
@@ -37,65 +40,121 @@ form {
 }
 
 #seat-booking-app {
+  --sba-gap: clamp(0.75rem, 2.5vw, 2rem);
+  --sba-panel-padding: clamp(0.65rem, 1.8vw, 1rem);
+  --sba-seat-min: clamp(0.65rem, 2.8vmin, 1.1rem);
+  --sba-touch-target: 2.75rem;
   display: flex;
   flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: stretch;
   justify-content: center;
-  column-gap: 2rem;
-  width: 80vw;
+  column-gap: var(--sba-gap);
+  row-gap: var(--sba-gap);
+  width: min(100%, 92rem);
+  max-width: 100%;
+  margin-inline: auto;
+  min-width: 0;
 }
 #seat-booking-app #screening-room-1 {
   display: flex;
   flex-direction: column;
   background-color: #0d0b31;
-  width: 80%;
-  max-height: 100%;
-  padding-bottom: 3rem;
-  justify-content: center;
+  flex: 1 1 65%;
+  min-width: 0;
+  max-height: none;
+  padding: clamp(0.5rem, 2vw, 1rem) clamp(0.35rem, 1.5vw, 0.75rem) clamp(1rem, 3vw, 3rem);
+  justify-content: flex-start;
   align-items: center;
 }
 #seat-booking-app #screen {
   background-color: rgb(232, 231, 241);
-  margin-bottom: 8rem;
-  margin-top: 3rem;
-  width: 50%;
-  height: 1.5rem;
+  margin-bottom: clamp(1.25rem, 5vw, 5rem);
+  margin-top: clamp(0.5rem, 2vw, 2rem);
+  width: min(90%, 28rem);
+  max-width: 100%;
+  height: clamp(1rem, 2.5vw, 1.5rem);
   display: flex;
   justify-content: center;
   align-items: center;
   text-transform: uppercase;
-  letter-spacing: 0.5rem;
+  letter-spacing: clamp(0.15rem, 1.5vw, 0.5rem);
+  font-size: clamp(0.7rem, 1.8vw, 0.95rem);
+  flex-shrink: 0;
+}
+#seat-booking-app .seats-viewport {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  padding-top: 2.5rem;
+  padding-bottom: 0.25rem;
+  scrollbar-gutter: stable;
+}
+@supports (scrollbar-color: auto) {
+  #seat-booking-app .seats-viewport {
+    scrollbar-color: rgba(232, 231, 241, 0.45) rgba(0, 0, 0, 0.2);
+    scrollbar-width: thin;
+  }
 }
 #seat-booking-app #seats {
   display: grid;
   align-content: start;
   justify-content: center;
-  grid-column-gap: 2rem;
-  grid-row-gap: 0.5rem;
+  justify-items: center;
+  width: max-content;
+  min-width: 100%;
+  margin-inline: auto;
+  grid-column-gap: clamp(0.5rem, 2vw, 2rem);
+  grid-row-gap: clamp(0.25rem, 1.2vw, 0.5rem);
   grid-template-areas: ".   .   .   .   .   A1  .   .   .   .   .  " ".   .   .   .   A2  A2  A2  .   .   .   .  " "B1L B1L B1L .   A2  A2  A2  .   B2L B2L B2L" "B1L B1L B1L B1  B1  B1  B1  B1  B2L B2L B2L" ".   C1L C1L C1L C1L C1L C1L C1L C1L C1L .  ";
 }
 #seat-booking-app #settings {
   display: flex;
   flex-direction: column;
   background-color: rgb(209, 194, 209);
-  width: 20%;
-  max-height: 100%;
-  align-self: center;
-  padding: 1rem;
+  flex: 0 1 22rem;
+  min-width: min(100%, 17rem);
+  max-width: 100%;
+  max-height: none;
+  align-self: stretch;
+  padding: var(--sba-panel-padding);
+  gap: clamp(0.35rem, 1.2vw, 0.65rem);
+  min-height: 0;
 }
 #seat-booking-app #settings .services-list {
   display: flex;
   flex-direction: column;
+  gap: 0.15rem;
 }
-#seat-booking-app #settings .services-list select, #seat-booking-app #settings .services-list input {
+#seat-booking-app #settings .services-list h3 {
+  font-size: clamp(0.85rem, 2vw, 1rem);
+  margin-top: 0.35rem;
+}
+#seat-booking-app #settings .services-list select,
+#seat-booking-app #settings .services-list input {
   width: 100%;
-  padding: 0.5rem 1rem;
-  margin-bottom: 0.3rem;
+  min-height: 2.25rem;
+  padding: 0.45rem 0.65rem;
+  margin-bottom: 0.25rem;
+  font-size: inherit;
 }
 #seat-booking-app #settings .services-list__btns {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
-  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: flex-start;
+  margin-bottom: 0.75rem;
+}
+#seat-booking-app #settings .services-list__btns .btn {
+  flex: 1 1 auto;
+  min-width: min(100%, 5.5rem);
+  min-height: var(--sba-touch-target);
+  padding: 0.5rem 0.65rem;
 }
 #seat-booking-app #settings .services-list__form {
   margin-bottom: 1rem;
@@ -106,58 +165,99 @@ form {
 #seat-booking-app #settings .sectors {
   display: flex;
   flex-direction: column;
-  margin-bottom: 1rem;
-  padding: 0 0.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0 clamp(0.15rem, 1vw, 0.5rem);
+  gap: 0.35rem;
+}
+#seat-booking-app #settings .sectors h3 {
+  font-size: clamp(0.8rem, 1.9vw, 0.95rem);
+}
+#seat-booking-app #settings .sectors .btn {
+  min-height: var(--sba-touch-target);
+  width: 100%;
 }
 #seat-booking-app #settings .sectors ul {
   display: flex;
   flex-direction: column;
   justify-content: center;
   list-style-type: none;
+  gap: 0.15rem;
 }
 #seat-booking-app #settings .sectors ul li {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  margin-top: 0.2rem;
+  gap: 0.35rem;
+  margin-top: 0;
+  flex-wrap: wrap;
 }
 #seat-booking-app #settings .sectors ul li input {
-  padding: 0.2rem 0.5rem;
-  width: 50%;
+  padding: 0.35rem 0.5rem;
+  width: min(50%, 8rem);
+  min-width: 4rem;
+  min-height: 2.25rem;
 }
 #seat-booking-app #settings .sectors ul li span {
-  padding: 0.2rem 0.5rem;
-  width: 50%;
+  padding: 0.25rem 0.35rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  word-break: break-word;
 }
 #seat-booking-app #settings .order {
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-top: 0.25rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  padding-top: 0.65rem;
 }
 #seat-booking-app #settings .order__header {
   display: flex;
   flex-direction: column;
 }
+#seat-booking-app #settings .order__header h2 {
+  font-size: clamp(1rem, 2.4vw, 1.25rem);
+}
 #seat-booking-app #settings .order__main {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  height: 5rem;
-  margin-bottom: 1rem;
+  min-height: clamp(4rem, 12vw, 5.5rem);
+  max-height: min(40vh, 14rem);
+  margin-bottom: 0.75rem;
+  -webkit-overflow-scrolling: touch;
 }
 #seat-booking-app #settings .order__main ul {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 0.25rem;
 }
 #seat-booking-app #settings .order__main ul li {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  gap: 0.5rem;
+  align-items: baseline;
+  font-size: clamp(0.8rem, 2vw, 0.95rem);
 }
 #seat-booking-app #settings .order__footer {
   display: flex;
   flex-direction: column;
+  gap: 0.5rem;
+}
+#seat-booking-app #settings .order__footer #order-total-price {
+  font-weight: 600;
+  font-size: clamp(0.95rem, 2.2vw, 1.05rem);
+  line-height: 1.35;
+  word-break: break-word;
+}
+#seat-booking-app #settings .order__footer .btn {
+  min-height: var(--sba-touch-target);
+  width: 100%;
+  font-size: clamp(0.95rem, 2.2vw, 1.05rem);
 }
 #seat-booking-app .sector {
   display: grid;
@@ -169,16 +269,18 @@ form {
   color: #f7f7f7;
   padding: 0.1rem;
   visibility: hidden;
-  font-size: 0.8rem;
+  font-size: clamp(0.65rem, 1.6vw, 0.8rem);
 }
 #seat-booking-app .row {
   position: relative;
   background-color: rgba(170, 215, 255, 0.5);
-  box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.6);
   border-bottom: 1px solid darkblue;
   padding-top: 0.2rem;
   display: grid;
   grid-auto-flow: column;
+  align-items: end;
+  width: max-content;
 }
 #seat-booking-app .seat {
   display: inline-block;
@@ -186,19 +288,25 @@ form {
   border-left: 2px solid rgb(141, 71, 20);
   border-right: 2px solid rgb(141, 71, 20);
   border-bottom: 2px solid rgb(141, 71, 20);
-  box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.4);
-  min-width: 1rem;
-  min-height: 1rem;
-  margin: 0.5rem 0.2rem 0.2rem;
+  box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.4);
+  min-width: var(--sba-seat-min);
+  min-height: var(--sba-seat-min);
+  width: clamp(0.85rem, 3.2vmin, 1.35rem);
+  height: clamp(0.85rem, 3.2vmin, 1.35rem);
+  margin: clamp(0.2rem, 1vw, 0.5rem) clamp(0.12rem, 0.6vw, 0.2rem) 0.2rem;
   border-radius: 0.2rem;
   justify-self: stretch;
   align-self: end;
   position: relative;
+  touch-action: manipulation;
 }
 #seat-booking-app .seat:hover {
   background-color: rgb(247, 228, 197);
   cursor: pointer;
-  transform: translateY(-0.2rem) scale(1.1);
+  transform: translateY(-0.15rem) scale(1.06);
+}
+#seat-booking-app .seat:active:not(.seat--booked):not(.seat--reserved) {
+  transform: translateY(0) scale(0.98);
 }
 #seat-booking-app .seat--reserved, #seat-booking-app .seat--reserved:hover, #seat-booking-app .seat--reserved:active {
   background-color: rgb(80, 229, 255);
@@ -212,17 +320,57 @@ form {
   box-shadow: none;
   transform: none;
 }
-#seat-booking-app .seat__info {
-  content: "";
+#seat-booking-app .row .seat__info {
   position: absolute;
+  top: 0;
   right: -5.5rem;
-  min-width: 5rem;
-  min-height: 3rem;
+  transform: translateY(-100%);
+  min-width: min(5rem, 40vw);
+  max-width: min(12rem, 85vw);
+  min-height: 2.25rem;
+  padding: 0.25rem 0.35rem;
   background-color: rgb(80, 229, 255);
-  border-radius: 0.7rem;
-  z-index: 1;
+  border-radius: 0.5rem;
+  z-index: 2;
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow: 2px 2px 3px 0px rgba(0, 0, 0, 0.4);
-}/*# sourceMappingURL=style.css.map */
+  box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, 0.4);
+  font-size: clamp(0.65rem, 1.6vw, 0.85rem);
+  pointer-events: none;
+  text-align: center;
+  word-break: break-all;
+}
+
+@media (max-width: 56rem) {
+  #seat-booking-app {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  #seat-booking-app #screening-room-1 {
+    flex: 1 1 auto;
+    order: 1;
+  }
+  #seat-booking-app #settings {
+    flex: 1 1 auto;
+    order: 2;
+    width: 100%;
+    min-width: 0;
+  }
+}
+@media (max-width: 30rem) {
+  #seat-booking-app {
+    --sba-touch-target: 3rem;
+  }
+  #seat-booking-app #settings .services-list__btns .btn {
+    min-width: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #seat-booking-app .seat:hover,
+  #seat-booking-app .seat:active {
+    transform: none;
+  }
+}
+
+/*# sourceMappingURL=style.css.map */

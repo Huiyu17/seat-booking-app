@@ -4,18 +4,21 @@
     box-sizing: border-box;
 }
 html {
-    font-size: 100%;
+    font-size: clamp(14px, 0.35vw + 13px, 18px);
 }
 
 body {
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
-    justify-content: center;
-    align-items: center;
+    justify-content: flex-start;
+    align-items: stretch;
     min-height: 100vh;
+    min-height: 100dvh;
     width: 100%;
     font-size: 1rem;
+    padding: clamp(0.5rem, 2vw, 1.25rem);
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
 
 img {

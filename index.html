@@ -28,7 +28,7 @@
                 <button id="sectors-price-btn" class="btn">Edit sectors` prices</button>
                 <h3>Price multipliers for each sector:</h3>
                 <ul id="sectors-list" class="sectors__list"></ul>
-                <button id="sectors-save-btn" class="btn">Save</button>
+                <button id="sectors-save-btn" class="btn">Save</button> 
             </div>
             <div id="order" class="order">
                 <div class="order__header">
@@ -43,9 +43,11 @@
                 </div>
             </div>
         </div>         
-        <div id="screening-room-1">
-            <div id="screen">Screen</div>
-            <div id="seats"></div>  
+        <div id="screening-room-1" class="screening-room">
+            <div id="screen" class="screen">Screen</div>
+            <div class="seats-viewport" role="region" aria-label="Seat map — scroll to see all seats">
+                <div id="seats"></div>
+            </div>
         </div>
     </div>
 
