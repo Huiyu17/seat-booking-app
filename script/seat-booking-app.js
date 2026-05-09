@@ -482,6 +482,7 @@ seatElements.forEach((seat) => {
             } else {
                 // remove seat ID from array
                 currentService.removeReservedSeat(e.target.id);
+                showingRoom1.updateOrderDetails()
             }
 
         };
