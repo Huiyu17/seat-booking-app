@@ -277,9 +277,9 @@ class Service {
             seat.setAttribute(`aria-pressed`, `false`);
             } else {
             seat.setAttribute(`aria-disabled`, `false`);
+            seat.setAttribute(`tabindex`, `0`);
             }
         })
-        document.querySelectorAll(`.sector`).forEach((sector) => ensureSectorTabStop(sector));
     }
 };
 
@@ -356,10 +356,11 @@ class Sector {
                     const seatElement = document.createElement('div');
                     seatElement.classList.add(`seat`);
                     seatElement.setAttribute(`id`, seats[j].seat);
-                    seatElement.setAttribute(`tabindex`, `-1`);
+                    seatElement.setAttribute(`tabindex`, `0`);
                     seatElement.setAttribute(`role`, `button`);
                     seatElement.setAttribute(`aria-label`, `Seat ${seats[j].seat}`);
                     seatElement.setAttribute(`aria-pressed`, `false`);
+                    seatElement.setAttribute(`aria-disabled`, `false`);
                     // append seat to current row container
                     rowElement.appendChild(seatElement);
                 };
@@ -420,60 +421,84 @@ function syncBookedSeatAccessibility(seat) {
     if (booked) {
         seat.setAttribute(`tabindex`, `-1`);
         seat.setAttribute(`aria-pressed`, `false`);
+    } else {
+        seat.setAttribute(`tabindex`, `0`);
     }
 }
 
-function ensureSectorTabStop(sector) {
-    if (!sector) return;
-    const current = sector.querySelector(`.seat[tabindex="0"]`);
-    if (current && !isSeatBooked(current)) return;
-
-    if (current) current.setAttribute(`tabindex`, `-1`);
-    const firstAvailable = Array.from(sector.querySelectorAll(`.seat`)).find((seat) => !isSeatBooked(seat));
-    if (firstAvailable) firstAvailable.setAttribute(`tabindex`, `0`);
+function parseSeatId(seatId) {
+    const parts = String(seatId).split(`-`);
+    if (parts.length < 4) return null;
+    const sectorId = `${parts[0]}-${parts[1]}`;
+    const rowNumber = Number.parseInt(parts[2], 10);
+    const seatNumber = Number.parseInt(parts[3], 10);
+    if (!Number.isFinite(rowNumber) || !Number.isFinite(seatNumber)) return null;
+    return {
+        sectorId,
+        rowId: `${sectorId}-${rowNumber}`,
+        rowNumber,
+        seatNumber
+    };
 }
 
-function setSectorTabStopForSeat(seat) {
-    if (!seat || isSeatBooked(seat)) return;
-    const sector = seat.closest(`.sector`);
-    if (!sector) return;
-    const current = sector.querySelector(`.seat[tabindex="0"]`);
-    if (current && current !== seat) current.setAttribute(`tabindex`, `-1`);
-    seat.setAttribute(`tabindex`, `0`);
+function mapIndex(value, fromCount, toCount) {
+    if (fromCount <= 1 || toCount <= 1) return 1;
+    const ratio = (value - 1) / (fromCount - 1);
+    return 1 + Math.round(ratio * (toCount - 1));
 }
 
-function getOrderedSectors() {
-    return Array.from(document.querySelectorAll(`.sector`))
-        .map((sector) => {
-            const rect = sector.getBoundingClientRect();
-            return {
-                sector,
-                x: rect.left + rect.width / 2,
-                y: rect.top + rect.height / 2
-            };
-        })
-        .sort((a, b) => (a.y - b.y) || (a.x - b.x))
-        .map((item) => item.sector);
+function findNearestAvailableSeatInRowBySeatNumber(row, seatNumber) {
+    if (!row) return null;
+    const seats = Array.from(row.querySelectorAll(`.seat`));
+    if (seats.length === 0) return null;
+
+    const clamped = Math.max(1, Math.min(seatNumber, seats.length));
+    for (let offset = 0; offset < seats.length; offset++) {
+        const left = clamped - offset;
+        if (left >= 1 && !isSeatBooked(seats[left - 1])) return seats[left - 1];
+        const right = clamped + offset;
+        if (right <= seats.length && !isSeatBooked(seats[right - 1])) return seats[right - 1];
+    }
+    return null;
 }
 
-function focusNextSectorFromSeat(seat, delta) {
-    const sectors = getOrderedSectors();
-    const currentSector = seat.closest(`.sector`);
-    const currentIndex = currentSector ? sectors.indexOf(currentSector) : -1;
-    if (currentIndex === -1) return false;
+function jumpToRowMappedBySeatNumber(sourceSeat, targetRowId) {
+    const sourceInfo = parseSeatId(sourceSeat.id);
+    if (!sourceInfo) return null;
+    const sourceRow = document.getElementById(sourceInfo.rowId);
+    const targetRow = document.getElementById(targetRowId);
+    if (!sourceRow || !targetRow) return null;
 
-    const nextSector = sectors[currentIndex + delta];
-    if (!nextSector) return false;
+    const sourceSeatCount = sourceRow.querySelectorAll(`.seat`).length;
+    const targetSeatCount = targetRow.querySelectorAll(`.seat`).length;
+    const mappedSeatNumber = mapIndex(sourceInfo.seatNumber, sourceSeatCount, targetSeatCount);
+    return findNearestAvailableSeatInRowBySeatNumber(targetRow, mappedSeatNumber);
+}
 
-    ensureSectorTabStop(nextSector);
-    const targetSeat =
-        nextSector.querySelector(`.seat[tabindex="0"]`) ||
-        Array.from(nextSector.querySelectorAll(`.seat`)).find((s) => !isSeatBooked(s));
-    if (!targetSeat) return false;
+function jumpToSideSector(sourceSeat, targetSectorId, targetSeatNumberInRow) {
+    const targetSector = document.getElementById(targetSectorId);
+    if (!targetSector) return null;
 
-    setSectorTabStopForSeat(targetSeat);
-    targetSeat.focus();
-    return true;
+    const sourceRect = sourceSeat.getBoundingClientRect();
+    const sourceY = sourceRect.top + sourceRect.height / 2;
+
+    const targetRows = Array.from(targetSector.querySelectorAll(`.row`));
+    let bestSeat = null;
+    let bestDistance = Infinity;
+
+    targetRows.forEach((row) => {
+        const candidate = findNearestAvailableSeatInRowBySeatNumber(row, targetSeatNumberInRow);
+        if (!candidate) return;
+        const rect = candidate.getBoundingClientRect();
+        const y = rect.top + rect.height / 2;
+        const d = Math.abs(y - sourceY);
+        if (d < bestDistance) {
+            bestDistance = d;
+            bestSeat = candidate;
+        }
+    });
+
+    return bestSeat;
 }
 
 function findNearestAvailableSeatInRow(row, preferredIndex) {
@@ -530,7 +555,6 @@ function renderBookedSeats() {
             }
             syncBookedSeatAccessibility(seat);
         });
-        document.querySelectorAll(`.sector`).forEach((sector) => ensureSectorTabStop(sector));
     }
 };
 
@@ -556,7 +580,6 @@ renderBookedSeats();
 // GET ELEMENTS FROM DOM ------------------------------------------------------
 // get all rendered seat elements
 const seatElements = document.querySelectorAll('.seat');
-document.querySelectorAll(`.sector`).forEach((sector) => ensureSectorTabStop(sector));
 seatElements.forEach((seat) => {
     // show seat label on mouseover
     seat.addEventListener('mouseover', () => {
@@ -572,7 +595,6 @@ seatElements.forEach((seat) => {
         if (!seat.classList.contains(`seat--booked`)) {
             e.target.classList.toggle('seat--reserved');
             seat.setAttribute(`aria-pressed`, seat.classList.contains(`seat--reserved`) ? `true` : `false`);
-            setSectorTabStopForSeat(seat);
             // get current service
             const currentService = showingRoom1.getCurrentService()
             if(seat.classList.contains(`seat--reserved`)) {
@@ -588,12 +610,6 @@ seatElements.forEach((seat) => {
     });
     // allow keyboard activation via Enter/Space and arrow key navigation
     seat.addEventListener('keydown', (e) => {
-        if (e.key === 'Tab') {
-            const moved = focusNextSectorFromSeat(seat, e.shiftKey ? -1 : 1);
-            if (moved) e.preventDefault();
-            return;
-        }
-
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             seat.click();
@@ -604,30 +620,65 @@ seatElements.forEach((seat) => {
         if (!arrowKeys.includes(e.key)) return;
         e.preventDefault();
 
+        const seatInfo = parseSeatId(seat.id);
         const row = seat.parentElement;
         const seatsInCurrentRow = Array.from(row.querySelectorAll(`.seat`));
         const seatIndex = seatsInCurrentRow.indexOf(seat);
         let targetSeat = null;
 
         if (e.key === 'ArrowRight') {
+            if (seatInfo?.sectorId === `s-B1L`) {
+                targetSeat = jumpToSideSector(seat, `s-B1`, 1);
+            } else if (seatInfo?.sectorId === `s-B1` && seatInfo.seatNumber === 20) {
+                targetSeat = jumpToSideSector(seat, `s-B2L`, 1);
+            }
+            if (targetSeat) {
+                targetSeat.focus();
+                return;
+            }
             targetSeat = seat.nextElementSibling;
             while (targetSeat && targetSeat.classList && targetSeat.classList.contains(`seat`) && isSeatBooked(targetSeat)) {
                 targetSeat = targetSeat.nextElementSibling;
             }
         } else if (e.key === 'ArrowLeft') {
+            if (seatInfo?.sectorId === `s-B2L`) {
+                targetSeat = jumpToSideSector(seat, `s-B1`, 20);
+            } else if (seatInfo?.sectorId === `s-B1` && seatInfo.seatNumber === 1) {
+                targetSeat = jumpToSideSector(seat, `s-B1L`, 1);
+            }
+            if (targetSeat) {
+                targetSeat.focus();
+                return;
+            }
             targetSeat = seat.previousElementSibling;
             while (targetSeat && targetSeat.classList && targetSeat.classList.contains(`seat`) && isSeatBooked(targetSeat)) {
                 targetSeat = targetSeat.previousElementSibling;
             }
         } else if (e.key === 'ArrowDown') {
-            const nextRow = row.nextElementSibling;
-            if (nextRow && nextRow.classList.contains('row')) {
-                targetSeat = findNearestAvailableSeatInRow(nextRow, seatIndex);
+            if (row?.id === `s-A1-2`) {
+                targetSeat = jumpToRowMappedBySeatNumber(seat, `s-A2-1`);
+            } else if (row?.id === `s-A2-3`) {
+                targetSeat = jumpToRowMappedBySeatNumber(seat, `s-B1-1`);
+            } else if (row?.id === `s-B1-4`) {
+                targetSeat = jumpToRowMappedBySeatNumber(seat, `s-C1L-1`);
+            } else {
+                const nextRow = row.nextElementSibling;
+                if (nextRow && nextRow.classList.contains('row')) {
+                    targetSeat = findNearestAvailableSeatInRow(nextRow, seatIndex);
+                }
             }
         } else if (e.key === 'ArrowUp') {
-            const prevRow = row.previousElementSibling;
-            if (prevRow && prevRow.classList.contains('row')) {
-                targetSeat = findNearestAvailableSeatInRow(prevRow, seatIndex);
+            if (row?.id === `s-A2-1`) {
+                targetSeat = jumpToRowMappedBySeatNumber(seat, `s-A1-2`);
+            } else if (row?.id === `s-B1-1`) {
+                targetSeat = jumpToRowMappedBySeatNumber(seat, `s-A2-3`);
+            } else if (row?.id === `s-C1L-1`) {
+                targetSeat = jumpToRowMappedBySeatNumber(seat, `s-B1-4`);
+            } else {
+                const prevRow = row.previousElementSibling;
+                if (prevRow && prevRow.classList.contains('row')) {
+                    targetSeat = findNearestAvailableSeatInRow(prevRow, seatIndex);
+                }
             }
         }
 
@@ -636,7 +687,6 @@ seatElements.forEach((seat) => {
         }
     });
     seat.addEventListener('focus', () => {
-        setSectorTabStopForSeat(seat);
         showSeatInfo(seat);
     })
     seat.addEventListener('blur', () => {
