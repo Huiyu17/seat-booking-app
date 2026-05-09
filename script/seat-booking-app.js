@@ -569,7 +569,44 @@ bookSeatsBtn.addEventListener('click', () => {
 
     // get current service
     const currentService = showingRoom1.getCurrentService();
+    // get reserved seats
+    const reservedSeats = currentService.getReservedSeats();
 
-    currentService.bookSeats();
-    showingRoom1.cacheServices();
+    // check if any seats are selected
+    if (reservedSeats.length === 0) {
+        alert('Please select at least one seat before booking.');
+        return;
+    }
+
+    // build confirmation message
+    const serviceName = currentService.getName();
+    const servicePrice = currentService.getPrice();
+    const priceMultipliers = showingRoom1.getPriceMultipliersArray();
+    
+    let totalPrice = 0;
+    let seatDetails = '';
+    
+    reservedSeats.forEach((seat) => {
+        const sectorId = seat.parentElement.parentElement.id;
+        const sectorPrice = priceMultipliers.find((element) => element.sector === sectorId).priceMultiplier;
+        const seatPrice = parseFloat((servicePrice * sectorPrice).toFixed(2));
+        totalPrice += seatPrice;
+        seatDetails += `\n- ${seat.id}: $${seatPrice}`;
+    });
+    
+    totalPrice = parseFloat(totalPrice.toFixed(2));
+
+    // show confirmation dialog
+    const confirmationMessage = `Confirm booking for "${serviceName}"?\n\nSelected seats:${seatDetails}\n\nTotal price: $${totalPrice}\n\nClick OK to confirm booking.`;
+    
+    if (confirm(confirmationMessage)) {
+        // user confirmed, proceed with booking
+        currentService.bookSeats();
+        showingRoom1.cacheServices();
+        showingRoom1.updateOrderDetails();
+        alert(`Booking successful! You have booked ${reservedSeats.length} seat(s) for $${totalPrice}.`);
+    } else {
+        // user cancelled
+        console.log('Booking cancelled by user.');
+    }
 })
