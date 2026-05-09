@@ -19,6 +19,97 @@ body {
     font-size: 1rem;
     padding: clamp(0.5rem, 2vw, 1.25rem);
     padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    padding-top: max(clamp(0.5rem, 2vw, 1.25rem), calc(env(safe-area-inset-top) + 2.75rem));
+    background-color: var(--body-bg, #ece8ef);
+    color: var(--body-color, #1a1528);
+}
+
+html[data-theme="dark"] body {
+    --body-bg: #0f0c18;
+    --body-color: #e9e6f2;
+}
+
+.app-toolbar {
+    position: fixed;
+    top: max(0.4rem, env(safe-area-inset-top));
+    right: max(0.4rem, env(safe-area-inset-right));
+    z-index: 200;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.4rem;
+    max-width: min(100% - 1rem, 20rem);
+    pointer-events: none;
+
+    & > * {
+        pointer-events: auto;
+    }
+}
+
+.app-toolbar__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    padding: 0.35rem 0.65rem;
+    border: 1px solid rgba(0, 0, 0, 0.14);
+    border-radius: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.92);
+    color: #1a1528;
+    font-size: clamp(0.8rem, 2vw, 0.95rem);
+    font-weight: 600;
+    line-height: 1.2;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+
+    &:hover {
+        background-color: #fff;
+        border-color: rgba(0, 0, 0, 0.22);
+    }
+
+    &:active {
+        transform: scale(0.97);
+    }
+
+    &:focus-visible {
+        outline: 2px solid #5b8cff;
+        outline-offset: 2px;
+    }
+}
+
+html[data-theme="dark"] .app-toolbar__btn {
+    background-color: rgba(36, 32, 52, 0.92);
+    color: #e9e6f2;
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+
+    &:hover {
+        background-color: rgba(48, 44, 68, 0.96);
+        border-color: rgba(255, 255, 255, 0.22);
+    }
+}
+
+.app-toolbar__theme-icon {
+    font-size: 1.15rem;
+    line-height: 1;
+}
+
+.app-toolbar__lang-label {
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .app-toolbar__btn {
+        transition: none;
+
+        &:active {
+            transform: none;
+        }
+    }
 }
 
 img {
@@ -37,4 +128,8 @@ form {
     cursor: pointer;
     padding: .5rem 1rem;
     background-color: beige;
+}
+
+html[data-theme="dark"] .btn {
+    color: #1a1528;
 }

@@ -558,3 +558,70 @@ bookSeatsBtn.addEventListener('click', () => {
     currentService.bookSeats();
     showingRoom1.cacheServices();
 })
+
+;(function initThemeToggle() {
+    const STORAGE_KEY = 'seat-booking-theme';
+    const root = document.documentElement;
+    const themeBtn = document.querySelector('#theme-toggle-btn');
+    const iconEl = themeBtn && themeBtn.querySelector('.app-toolbar__theme-icon');
+
+    function resolveInitialTheme() {
+        try {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored === 'light' || stored === 'dark') return stored;
+        } catch (_) {
+            /* ignore */
+        }
+        return window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light';
+    }
+
+    function applyTheme(theme) {
+        root.dataset.theme = theme;
+        root.style.colorScheme = theme === 'dark' ? 'dark' : 'light';
+        try {
+            localStorage.setItem(STORAGE_KEY, theme);
+        } catch (_) {
+            /* ignore */
+        }
+
+        const isDark = theme === 'dark';
+        if (themeBtn) {
+            themeBtn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+            themeBtn.setAttribute(
+                'title',
+                isDark ? '切换为亮色主题' : '切换为暗色主题'
+            );
+            themeBtn.setAttribute(
+                'aria-label',
+                isDark ? '当前为暗色主题，点击切换为亮色' : '当前为亮色主题，点击切换为暗色'
+            );
+        }
+        if (iconEl) {
+            iconEl.textContent = isDark ? '☀️' : '🌙';
+        }
+    }
+
+    function toggleTheme() {
+        const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+        applyTheme(next);
+    }
+
+    applyTheme(resolveInitialTheme());
+
+    if (themeBtn) {
+        themeBtn.addEventListener('click', toggleTheme);
+    }
+
+    window
+        .matchMedia('(prefers-color-scheme: dark)')
+        .addEventListener('change', (e) => {
+            try {
+                if (localStorage.getItem(STORAGE_KEY)) return;
+            } catch (_) {
+                /* ignore */
+            }
+            applyTheme(e.matches ? 'dark' : 'light');
+        });
+})();

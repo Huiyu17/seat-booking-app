@@ -7,6 +7,27 @@
     --sba-seat-min: clamp(0.65rem, 2.8vmin, 1.1rem);
     --sba-touch-target: 2.75rem;
 
+    --sba-room-bg: #0d0b31;
+    --sba-screen-bg: rgb(232, 231, 241);
+    --sba-screen-fg: #1e1838;
+    --sba-settings-bg: rgb(209, 194, 209);
+    --sba-order-border: rgba(0, 0, 0, 0.12);
+    --sba-sector-label-bg: #4e0000;
+    --sba-sector-label-fg: #f7f7f7;
+    --sba-row-bg: rgba(170, 215, 255, 0.5);
+    --sba-row-border: darkblue;
+    --sba-row-shadow: rgb(0 0 0 / 60%);
+    --sba-seat-bg: rgb(238, 243, 171);
+    --sba-seat-border: rgb(141, 71, 20);
+    --sba-seat-shadow: rgb(0 0 0 / 40%);
+    --sba-seat-hover: rgb(247, 228, 197);
+    --sba-seat-reserved: rgb(80, 229, 255);
+    --sba-seat-booked: rgb(161, 161, 161);
+    --sba-seat-info-bg: rgb(80, 229, 255);
+    --sba-seat-info-shadow: rgb(0 0 0 / 40%);
+    --sba-scrollbar-thumb: rgba(232, 231, 241, 0.45);
+    --sba-scrollbar-track: rgba(0, 0, 0, 0.2);
+
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
@@ -22,7 +43,7 @@
     #screening-room-1 {
         display: flex;
         flex-direction: column;
-        background-color: #0d0b31;
+        background-color: var(--sba-room-bg);
         flex: 1 1 65%;
         min-width: 0;
         max-height: none;
@@ -33,7 +54,8 @@
     }
 
     #screen {
-        background-color: rgb(232, 231, 241);
+        background-color: var(--sba-screen-bg);
+        color: var(--sba-screen-fg);
         margin-bottom: clamp(1.25rem, 5vw, 5rem);
         margin-top: clamp(0.5rem, 2vw, 2rem);
         width: min(90%, 28rem);
@@ -63,7 +85,7 @@
 
     @supports (scrollbar-color: auto) {
         .seats-viewport {
-            scrollbar-color: rgba(232, 231, 241, 0.45) rgba(0, 0, 0, 0.2);
+            scrollbar-color: var(--sba-scrollbar-thumb) var(--sba-scrollbar-track);
             scrollbar-width: thin;
         }
     }
@@ -89,7 +111,7 @@
     #settings {
         display: flex;
         flex-direction: column;
-        background-color: rgb(209, 194, 209);
+        background-color: var(--sba-settings-bg);
         flex: 0 1 22rem;
         min-width: min(100%, 17rem);
         max-width: 100%;
@@ -198,7 +220,7 @@
             flex: 1 1 auto;
             min-height: 0;
             margin-top: 0.25rem;
-            border-top: 1px solid rgba(0, 0, 0, 0.12);
+            border-top: 1px solid var(--sba-order-border);
             padding-top: 0.65rem;
 
             &__header {
@@ -263,8 +285,8 @@
 
         &__label {
             text-align: right;
-            background-color: #4e0000;
-            color: #f7f7f7;
+            background-color: var(--sba-sector-label-bg);
+            color: var(--sba-sector-label-fg);
             padding: 0.1rem;
             visibility: hidden;
             font-size: clamp(0.65rem, 1.6vw, 0.8rem);
@@ -273,9 +295,9 @@
 
     & .row {
         position: relative;
-        background-color: rgba(170, 215, 255, 0.5);
-        box-shadow: 0 2px 3px 0 rgb(0 0 0 / 60%);
-        border-bottom: 1px solid darkblue;
+        background-color: var(--sba-row-bg);
+        box-shadow: 0 2px 3px 0 var(--sba-row-shadow);
+        border-bottom: 1px solid var(--sba-row-border);
         padding-top: 0.2rem;
         display: grid;
         grid-auto-flow: column;
@@ -285,11 +307,11 @@
 
     & .seat {
         display: inline-block;
-        background-color: rgb(238, 243, 171);
-        border-left: 2px solid rgb(141, 71, 20);
-        border-right: 2px solid rgb(141, 71, 20);
-        border-bottom: 2px solid rgb(141, 71, 20);
-        box-shadow: 0 2px 3px 0 rgb(0 0 0 / 40%);
+        background-color: var(--sba-seat-bg);
+        border-left: 2px solid var(--sba-seat-border);
+        border-right: 2px solid var(--sba-seat-border);
+        border-bottom: 2px solid var(--sba-seat-border);
+        box-shadow: 0 2px 3px 0 var(--sba-seat-shadow);
         min-width: var(--sba-seat-min);
         min-height: var(--sba-seat-min);
         width: clamp(0.85rem, 3.2vmin, 1.35rem);
@@ -302,7 +324,7 @@
         touch-action: manipulation;
 
         &:hover {
-            background-color: rgb(247, 228, 197);
+            background-color: var(--sba-seat-hover);
             cursor: pointer;
             transform: translateY(-0.15rem) scale(1.06);
         }
@@ -314,7 +336,7 @@
         &--reserved,
         &--reserved:hover,
         &--reserved:active {
-            background-color: rgb(80, 229, 255);
+            background-color: var(--sba-seat-reserved);
             cursor: default;
             box-shadow: none;
             transform: none;
@@ -323,7 +345,7 @@
         &--booked,
         &--booked:hover,
         &--booked:active {
-            background-color: rgb(161, 161, 161);
+            background-color: var(--sba-seat-booked);
             cursor: default;
             box-shadow: none;
             transform: none;
@@ -340,18 +362,41 @@
         max-width: min(12rem, 85vw);
         min-height: 2.25rem;
         padding: 0.25rem 0.35rem;
-        background-color: rgb(80, 229, 255);
+        background-color: var(--sba-seat-info-bg);
         border-radius: 0.5rem;
         z-index: 2;
         display: flex;
         justify-content: center;
         align-items: center;
-        box-shadow: 2px 2px 3px 0 rgb(0 0 0 / 40%);
+        box-shadow: 2px 2px 3px 0 var(--sba-seat-info-shadow);
         font-size: clamp(0.65rem, 1.6vw, 0.85rem);
         pointer-events: none;
         text-align: center;
         word-break: break-all;
     }
+}
+
+html[data-theme="dark"] #seat-booking-app {
+    --sba-room-bg: #06040f;
+    --sba-screen-bg: #2c2842;
+    --sba-screen-fg: #eceaf5;
+    --sba-settings-bg: #1c1728;
+    --sba-order-border: rgba(255, 255, 255, 0.12);
+    --sba-sector-label-bg: #6b1515;
+    --sba-sector-label-fg: #f2f2f2;
+    --sba-row-bg: rgba(90, 130, 190, 0.28);
+    --sba-row-border: #4a6fb8;
+    --sba-row-shadow: rgb(0 0 0 / 75%);
+    --sba-seat-bg: rgb(165, 158, 95);
+    --sba-seat-border: rgb(110, 75, 45);
+    --sba-seat-shadow: rgb(0 0 0 / 55%);
+    --sba-seat-hover: rgb(195, 185, 125);
+    --sba-seat-reserved: rgb(55, 175, 195);
+    --sba-seat-booked: rgb(85, 85, 92);
+    --sba-seat-info-bg: rgb(55, 175, 195);
+    --sba-seat-info-shadow: rgb(0 0 0 / 55%);
+    --sba-scrollbar-thumb: rgba(180, 175, 220, 0.45);
+    --sba-scrollbar-track: rgba(0, 0, 0, 0.35);
 }
 
 @media (max-width: 56rem) {
