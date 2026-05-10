@@ -36,6 +36,51 @@ form {
   background-color: beige;
 }
 
+#toast-region {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.toast {
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.4rem;
+  font-size: 0.95rem;
+  font-family: Arial, sans-serif;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  animation: toast-in 0.2s ease;
+  max-width: 20rem;
+  word-break: break-word;
+}
+
+.toast--success {
+  background-color: #2e7d32;
+}
+
+.toast--info {
+  background-color: #1565c0;
+}
+
+.toast--error {
+  background-color: #c62828;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 #seat-booking-app {
   display: flex;
   flex-direction: row;
@@ -225,4 +270,6 @@ form {
   justify-content: center;
   align-items: center;
   box-shadow: 2px 2px 3px 0px rgba(0, 0, 0, 0.4);
-}/*# sourceMappingURL=style.css.map */
+}
+
+/*# sourceMappingURL=style.css.map */

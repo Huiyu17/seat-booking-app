@@ -122,7 +122,7 @@ class SeatBookingApp {
 
         if(!servicesJSON) {
             // if there's no data, notify user
-            console.log(`Let's add some services. Use the form on the left.`)
+            showToast('No showings found. Use the form to add one.', 'info')
         } else {
             servicesJSON.forEach((service) => {
                 // create Service instances and add to app's array
@@ -401,7 +401,6 @@ const localStorageSpace = function(){
 
 // APP FUNCTIONS --------------------------------------------------------------
 function initializeApp(instanceName) {
-    console.log(`Seat-Booking App instance "${instanceName}" has been successfully created!`);
     return new SeatBookingApp(instanceName);
 };
 
@@ -502,8 +501,7 @@ serviceAddBtn.addEventListener('click', (e) => {
     showingRoom1.renderServicesList();
     showingRoom1.renderCurrentServiceData();
 
-    console.log(`"${inputServiceName}" has been successfully added`)
-    localStorageSpace();
+    showToast(`"${inputServiceName}" added successfully!`, 'success')
 })
 
 // get `update Service` button element
@@ -520,8 +518,7 @@ serviceUpdateBtn.addEventListener('click', () => {
     showingRoom1.cacheServices();
     showingRoom1.renderCurrentServiceData();
 
-    console.log(`"${inputServiceName}" has been successfully updated`)
-    localStorageSpace();
+    showToast(`"${inputServiceName}" updated successfully!`, 'success')
 })
 
 // get `delete Service` button element
@@ -544,8 +541,7 @@ serviceDeleteBtn.addEventListener('click', () => {
     showingRoom1.renderServicesList()
     showingRoom1.renderCurrentServiceData();
 
-    console.log(`"${inputServiceName}" has been successfully removed`)
-    localStorageSpace();
+    showToast(`"${inputServiceName}" deleted.`, 'info')
 })
 
 // get `book seats` button element
@@ -558,3 +554,14 @@ bookSeatsBtn.addEventListener('click', () => {
     currentService.bookSeats();
     showingRoom1.cacheServices();
 })
+
+function showToast(message, type = 'info') {
+    const region = document.getElementById('toast-region');
+    if (!region) return;
+    region.innerHTML = '';
+    const toast = document.createElement('div');
+    toast.className = `toast toast--${type}`;
+    toast.textContent = message;
+    region.appendChild(toast);
+    setTimeout(() => { region.innerHTML = ''; }, 5000);
+}
