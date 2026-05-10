@@ -18,7 +18,7 @@ class SeatBookingApp {
         return this._sectors;
     }
     setPriceMultipliersArray() {
-        // get sectors array
+        this._priceMultipliers = [];
         const sectors = this.getSectorsArray();
         sectors.forEach((sector) => {
             const sectorId = sector.getId();
@@ -606,4 +606,50 @@ bookSeatsBtn.addEventListener('click', () => {
         // user cancelled
         console.log('Booking cancelled by user.');
     }
+})
+
+// get `edit sectors price` button element
+const sectorsPriceBtn = document.querySelector(`#sectors-price-btn`);
+sectorsPriceBtn.addEventListener('click', () => {
+    const priceInputs = document.querySelectorAll('#sectors-list input');
+    priceInputs.forEach((input) => {
+        input.disabled = !input.disabled;
+        input.style.border = input.disabled ? 'none' : '1px solid #ccc';
+    });
+    
+    const saveBtn = document.querySelector('#sectors-save-btn');
+    saveBtn.style.display = 'inline-block';
+});
+
+// get `save sectors price` button element
+const sectorsSaveBtn = document.querySelector(`#sectors-save-btn`);
+sectorsSaveBtn.addEventListener('click', () => {
+    const priceInputs = document.querySelectorAll('#sectors-list input');
+    const sectors = showingRoom1.getSectorsArray();
+    
+    priceInputs.forEach((input) => {
+        const sectorId = input.id.replace('price-', '');
+        const newMultiplier = parseFloat(input.value);
+        
+        if (!isNaN(newMultiplier) && newMultiplier >= 0) {
+            const sector = sectors.find((s) => s.getId() === sectorId);
+            if (sector) {
+                sector.setPriceMultiplier(newMultiplier);
+            }
+        }
+    });
+    
+    showingRoom1.setPriceMultipliersArray();
+    showingRoom1.updateOrderDetails();
+    
+    priceInputs.forEach((input) => {
+        input.disabled = true;
+        input.style.border = 'none';
+    });
+    
+    const saveBtn = document.querySelector('#sectors-save-btn');
+    saveBtn.style.display = 'none';
+    
+    alert('Sector prices updated successfully!');
+    console.log('Sector prices have been updated');
 })
