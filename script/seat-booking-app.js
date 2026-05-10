@@ -502,37 +502,57 @@ dropdownElement.addEventListener('change', (e) => {
 // get `add new Service` button element
 const serviceAddBtn = document.querySelector(`#service-add-btn`);
 serviceAddBtn.addEventListener('click', (e) => {
-    // get input elements
-    const inputServiceName = document.querySelector(`#service-name`).value;
+    const inputServiceName = document.querySelector(`#service-name`).value.trim();
     const inputServicePrice = document.querySelector(`#service-price`).value;
-    // create new Service instance
-    const newService = new Service(inputServiceName, inputServicePrice)
+    
+    if (!inputServiceName) {
+        alert('Please enter a Movie title.');
+        return;
+    }
+    
+    const price = parseFloat(inputServicePrice);
+    if (isNaN(price) || price <= 0) {
+        alert('Please enter a valid Price base (must be a positive number).');
+        return;
+    }
+    
+    const newService = new Service(inputServiceName, price);
 
     showingRoom1.addService(newService);
     showingRoom1.cacheServices();
     showingRoom1.renderServicesList();
     showingRoom1.renderCurrentServiceData();
 
-    console.log(`"${inputServiceName}" has been successfully added`)
+    console.log(`"${inputServiceName}" has been successfully added`);
     localStorageSpace();
 })
 
 // get `update Service` button element
 const serviceUpdateBtn = document.querySelector(`#service-update-btn`);
 serviceUpdateBtn.addEventListener('click', () => {
-    // get input elements
-    const inputServiceName = document.querySelector(`#service-name`).value;
+    const inputServiceName = document.querySelector(`#service-name`).value.trim();
     const inputServicePrice = document.querySelector(`#service-price`).value;
-    // get current service
+    
+    if (!inputServiceName) {
+        alert('Please enter a Movie title.');
+        return;
+    }
+    
+    const price = parseFloat(inputServicePrice);
+    if (isNaN(price) || price <= 0) {
+        alert('Please enter a valid Price base (must be a positive number).');
+        return;
+    }
+    
     const currentService = showingRoom1.getCurrentService();
     currentService.setName(inputServiceName);
-    currentService.setPrice(inputServicePrice);
+    currentService.setPrice(price);
 
     showingRoom1.cacheServices();
     showingRoom1.renderCurrentServiceData();
     showingRoom1.updateOrderDetails();
 
-    console.log(`"${inputServiceName}" has been successfully updated`)
+    console.log(`"${inputServiceName}" has been successfully updated`);
     localStorageSpace();
 })
 
@@ -627,15 +647,28 @@ sectorsSaveBtn.addEventListener('click', () => {
     const priceInputs = document.querySelectorAll('#sectors-list input');
     const sectors = showingRoom1.getSectorsArray();
     
+    for (const input of priceInputs) {
+        const inputValue = input.value.trim();
+        
+        if (!inputValue) {
+            alert('Please fill in all Price multipliers.');
+            return;
+        }
+        
+        const newMultiplier = parseFloat(inputValue);
+        if (isNaN(newMultiplier) || newMultiplier < 0) {
+            alert('Please enter valid Price multipliers (non-negative numbers only).');
+            return;
+        }
+    }
+    
     priceInputs.forEach((input) => {
         const sectorId = input.id.replace('price-', '');
         const newMultiplier = parseFloat(input.value);
         
-        if (!isNaN(newMultiplier) && newMultiplier >= 0) {
-            const sector = sectors.find((s) => s.getId() === sectorId);
-            if (sector) {
-                sector.setPriceMultiplier(newMultiplier);
-            }
+        const sector = sectors.find((s) => s.getId() === sectorId);
+        if (sector) {
+            sector.setPriceMultiplier(newMultiplier);
         }
     });
     
