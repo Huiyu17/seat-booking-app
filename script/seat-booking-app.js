@@ -269,9 +269,11 @@ class Service {
     }
     removeReservedSeat(seatId) {
         const index = this._seatsReserved.findIndex((seat) => {
-            return seat === seatId
+            return seat.id === seatId
         })
-        this._seatsReserved.splice(index, 1)
+        if (index !== -1) {
+            this._seatsReserved.splice(index, 1)
+        }
     }
     clearReservedSeats() {
         this._seatsReserved = [];

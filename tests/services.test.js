@@ -47,7 +47,7 @@ describe('Service Management', () => {
     
     service.addReservedSeat(seat1);
     service.addReservedSeat(seat2);
-    service.removeReservedSeat(seat1);
+    service.removeReservedSeat(seat1.id);
     
     expect(service.getReservedSeats()).toEqual([seat2]);
   });
