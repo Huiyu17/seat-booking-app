@@ -1,4 +1,12 @@
-const { SeatBookingApp, Service, Sector } = require('../script/seat-booking-app');
+const {
+    SeatBookingApp,
+    Service,
+    Sector,
+    addServiceFromForm,
+    updateServiceFromForm,
+    deleteCurrentService,
+    bookCurrentSeats
+} = require('../script/seat-booking-app');
 
 beforeEach(() => {
   document.body.innerHTML = `

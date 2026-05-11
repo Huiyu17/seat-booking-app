@@ -1,4 +1,8 @@
-const { SeatBookingApp, Service, Sector } = require('../script/seat-booking-app');
+const {
+    SeatBookingApp,
+    Service,
+    Sector
+} = require('../script/seat-booking-app');
 
 beforeEach(() => {
   if (document.querySelector('#seats')) {

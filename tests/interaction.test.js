@@ -1,4 +1,8 @@
-const { SeatBookingApp, Service, Sector } = require('../script/seat-booking-app');
+const {
+    SeatBookingApp,
+    Service,
+    Sector
+} = require('../script/seat-booking-app');
 
 beforeEach(() => {
   if (document.querySelector('#seats')) {
@@ -229,8 +233,8 @@ describe('App Initialization and State', () => {
 
   test('App returns null when no current service is set', () => {
     const app = new SeatBookingApp('room1');
-    
-    expect(app.getCurrentService()).toBeUndefined();
+
+    expect(app.getCurrentService()).toBeNull();
   });
 
   test('App returns correct current service', () => {

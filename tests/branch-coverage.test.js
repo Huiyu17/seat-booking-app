@@ -1,4 +1,8 @@
-const { SeatBookingApp, Service, Sector } = require('../script/seat-booking-app');
+const {
+    SeatBookingApp,
+    Service,
+    Sector
+} = require('../script/seat-booking-app');
 
 beforeEach(() => {
   document.body.innerHTML = `
@@ -178,8 +182,8 @@ describe('Branch Coverage Tests', () => {
 
   test('App without current service', () => {
     const app = new SeatBookingApp('room1');
-
-    expect(app.getCurrentService()).toBeUndefined();
+    
+    expect(app.getCurrentService()).toBeNull();
   });
 
   test('App with current service', () => {

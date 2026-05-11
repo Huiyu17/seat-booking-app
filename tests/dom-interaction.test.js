@@ -1,4 +1,9 @@
-const { SeatBookingApp, Service, Sector } = require('../script/seat-booking-app');
+const {
+    SeatBookingApp,
+    Service,
+    Sector,
+    renderBookedSeats
+} = require('../script/seat-booking-app');
 
 beforeEach(() => {
   document.body.innerHTML = `
@@ -220,6 +225,6 @@ describe('Order Details', () => {
     app.updateOrderDetails();
     
     expect(document.querySelector('#order-details').children.length).toBe(0);
-    expect(document.querySelector('#order-total-price').textContent).toBe('');
+    expect(document.querySelector('#order-total-price').textContent).toBe('Total price: $0');
   });
 });
