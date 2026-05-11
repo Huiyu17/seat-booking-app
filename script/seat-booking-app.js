@@ -549,6 +549,7 @@ serviceUpdateBtn.addEventListener('click', () => {
     currentService.setPrice(price);
 
     showingRoom1.cacheServices();
+    showingRoom1.renderServicesList();
     showingRoom1.renderCurrentServiceData();
     showingRoom1.updateOrderDetails();
 
