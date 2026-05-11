@@ -567,5 +567,5 @@ function showToast(message, type = 'info') {
 }
 
 if (typeof module !== 'undefined') {
-    module.exports = { SeatBookingApp, Service, Sector };
+    module.exports = { SeatBookingApp, Service, Sector, showToast };
 }
