@@ -565,3 +565,7 @@ function showToast(message, type = 'info') {
     region.appendChild(toast);
     setTimeout(() => { region.innerHTML = ''; }, 5000);
 }
+
+if (typeof module !== 'undefined') {
+    module.exports = { SeatBookingApp, Service, Sector };
+}
