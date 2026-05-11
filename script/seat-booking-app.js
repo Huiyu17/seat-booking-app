@@ -625,3 +625,7 @@ bookSeatsBtn.addEventListener('click', () => {
             applyTheme(e.matches ? 'dark' : 'light');
         });
 })();
+
+if (typeof module !== 'undefined') {
+    module.exports = { SeatBookingApp, Service, Sector };
+}
