@@ -20,7 +20,9 @@ document.body.innerHTML = `
     </div>
     <div id="screening-room-1">
       <div id="screen">Screen</div>
-      <div id="seats"></div>
+      <div class="seats-scroll-wrap">
+        <div id="seats"></div>
+      </div>
     </div>
   </div>
 `;

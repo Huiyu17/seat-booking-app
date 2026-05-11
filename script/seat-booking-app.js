@@ -148,6 +148,7 @@ class SeatBookingApp {
 
         if (!rawData) {
             console.log("Let's add some services. Use the form on the left.");
+            showToast('No showings found. Use the form to add one.', 'info');
             return;
         }
 
@@ -579,8 +580,8 @@ function saveSectorPriceMultipliers(app) {
         saveBtn.style.display = 'none';
     }
 
-    alert('Sector prices updated successfully!');
     console.log('Sector prices have been updated');
+    showToast('Sector prices updated successfully!', 'success');
 
     return true;
 }
@@ -598,6 +599,7 @@ function addServiceFromForm(app) {
     app.renderCurrentServiceData();
 
     console.log(`"${result.name}" has been successfully added`);
+    showToast(`"${result.name}" added successfully!`, 'success');
 
     if (typeof localStorageSpace === 'function') {
         localStorageSpace();
@@ -627,6 +629,7 @@ function updateServiceFromForm(app) {
     app.updateOrderDetails();
 
     console.log(`"${result.name}" has been successfully updated`);
+    showToast(`"${result.name}" updated successfully!`, 'success');
 
     if (typeof localStorageSpace === 'function') {
         localStorageSpace();
@@ -658,6 +661,7 @@ function deleteCurrentService(app) {
     app.renderCurrentServiceData();
 
     console.log(`"${inputServiceName}" has been successfully removed`);
+    showToast(`"${inputServiceName}" deleted.`, 'info');
 
     if (typeof localStorageSpace === 'function') {
         localStorageSpace();
@@ -719,7 +723,7 @@ function bookCurrentSeats(app) {
         app.cacheServices();
         app.updateOrderDetails();
 
-        alert(`Booking successful! You have booked ${bookedSeatsCount} seat(s) for $${totalPrice}.`);
+        showToast(`Booking successful! You have booked ${bookedSeatsCount} seat(s) for $${totalPrice}.`, 'success');
 
         return true;
     }
@@ -948,6 +952,17 @@ function setupSeatBookingApp() {
     return showingRoom1;
 }
 
+function showToast(message, type = 'info') {
+    const region = document.getElementById('toast-region');
+    if (!region) return;
+    region.innerHTML = '';
+    const toast = document.createElement('div');
+    toast.className = `toast toast--${type}`;
+    toast.textContent = message;
+    region.appendChild(toast);
+    setTimeout(() => { region.innerHTML = ''; }, 5000);
+}
+
 /**
  * Browser auto init.
  */
@@ -985,6 +1000,7 @@ if (typeof module !== 'undefined') {
         setupSeatBookingApp,
         setupThemeToggle,
         sanitizeText,
-        THEME_STORAGE_KEY
+        THEME_STORAGE_KEY,
+        showToast
     };
 }

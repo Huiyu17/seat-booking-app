@@ -17,6 +17,8 @@ const {
 
 beforeEach(() => {
     document.body.innerHTML = `
+        <div id="toast-region" role="status" aria-live="polite" aria-atomic="true"></div>
+
         <div id="seat-booking-app">
             <select id="services-list"></select>
 
@@ -297,7 +299,13 @@ describe('saveSectorPriceMultipliers', () => {
         expect(document.querySelector('#price-s-B1').disabled).toBe(true);
         expect(document.querySelector('#sectors-save-btn').style.display).toBe('none');
 
-        expect(global.alert).toHaveBeenCalledWith('Sector prices updated successfully!');
+        const toast = document.querySelector('.toast');
+
+        expect(toast).not.toBeNull();
+        expect(toast.textContent).toBe('Sector prices updated successfully!');
+        expect(toast.classList.contains('toast--success')).toBe(true);
+
+        expect(global.alert).not.toHaveBeenCalled();
         expect(console.log).toHaveBeenCalledWith('Sector prices have been updated');
     });
 });
@@ -483,9 +491,14 @@ describe('bookCurrentSeats', () => {
 
         expect(app.updateOrderDetails).toHaveBeenCalled();
 
-        expect(global.alert).toHaveBeenCalledWith(
-            'Booking successful! You have booked 2 seat(s) for $30.'
-        );
+        const toast = document.querySelector('.toast');
+
+        expect(toast).not.toBeNull();
+        expect(toast.textContent).toBe('Booking successful! You have booked 2 seat(s) for $30.');
+        expect(toast.classList.contains('toast--success')).toBe(true);
+
+        expect(global.alert).not.toHaveBeenCalled();
+        
     });
 
     test('does not book seats when user cancels', () => {
