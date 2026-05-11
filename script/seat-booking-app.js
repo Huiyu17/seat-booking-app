@@ -127,7 +127,12 @@ fetchServices() {
             }
             
             // Defense 2: Sanitize name and price
-            const sanitizedName = DOMPurify.sanitize(service._name);
+            const sanitizedName = typeof DOMPurify !== 'undefined' 
+                ? DOMPurify.sanitize(service._name) 
+                : service._name.replace(/[&<>"']/g, char => {
+                    const entities = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+                    return entities[char];
+                });
             const sanitizedPrice = Number(service._price);
             
             // Defense 3: Validate sanitized data
@@ -264,7 +269,7 @@ class Service {
     }
     removeReservedSeat(seatId) {
         const index = this._seatsReserved.findIndex((seat) => {
-            return seat.id === seatId
+            return seat === seatId
         })
         this._seatsReserved.splice(index, 1)
     }
