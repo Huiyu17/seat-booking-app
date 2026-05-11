@@ -857,6 +857,53 @@ function attachControlEvents(app) {
     }
 }
 
+const THEME_STORAGE_KEY = 'seat-booking-theme';
+
+function setupThemeToggle() {
+    const btn = document.querySelector('#theme-toggle-btn');
+    const root = document.documentElement;
+
+    function applyTheme(theme) {
+        const t = theme === 'dark' ? 'dark' : 'light';
+
+        root.setAttribute('data-theme', t);
+
+        try {
+            localStorage.setItem(THEME_STORAGE_KEY, t);
+        } catch (_) {
+            /* ignore quota / private mode */
+        }
+
+        if (btn) {
+            btn.textContent = t === 'dark' ? 'light' : 'dark';
+            btn.setAttribute('aria-label', t === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+            btn.setAttribute('aria-pressed', t === 'dark' ? 'true' : 'false');
+        }
+    }
+
+    let saved = null;
+
+    try {
+        saved = localStorage.getItem(THEME_STORAGE_KEY);
+    } catch (_) {
+        /* ignore */
+    }
+
+    if (saved === 'dark' || saved === 'light') {
+        applyTheme(saved);
+    } else {
+        applyTheme('light');
+    }
+
+    if (btn) {
+        btn.addEventListener('click', () => {
+            const current = root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+
+            applyTheme(current === 'dark' ? 'light' : 'dark');
+        });
+    }
+}
+
 function setupSeatBookingApp() {
     const appContainer = document.querySelector('#seat-booking-app');
 
@@ -910,6 +957,7 @@ if (
     typeof module === 'undefined'
 ) {
     document.addEventListener('DOMContentLoaded', () => {
+        setupThemeToggle();
         setupSeatBookingApp();
     });
 }
@@ -935,6 +983,8 @@ if (typeof module !== 'undefined') {
         attachSeatEvents,
         attachControlEvents,
         setupSeatBookingApp,
-        sanitizeText
+        setupThemeToggle,
+        sanitizeText,
+        THEME_STORAGE_KEY
     };
 }
