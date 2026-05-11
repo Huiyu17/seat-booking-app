@@ -864,12 +864,12 @@ function setupSeatBookingApp() {
 
     const showingRoom1 = initializeApp('showingRoom1');
 
-    const sectorA1 = new Sector('A1', 1, 6, 6, 6);
-    const sectorA2 = new Sector('A2', 1, 6, 6, 6);
-    const sectorB1 = new Sector('B1', 1.2, 8, 8, 8);
-    const sectorB1L = new Sector('B1L', 1.2, 4, 4, 4);
-    const sectorB2L = new Sector('B2L', 1.3, 4, 4, 4);
-    const sectorC1L = new Sector('C1L', 1.5, 5, 5, 5);
+    const sectorA1 = new Sector('A1', 1.0, 20, 20);
+    const sectorA2 = new Sector('A2', 1.2, 20, 20, 20);
+    const sectorB1 = new Sector('B1', 1.2, 20, 20, 20, 20);
+    const sectorB1L = new Sector('B1L', 1.4, 1, 1, 1, 1, 1, 1);
+    const sectorB2L = new Sector('B2L', 1.4, 1, 1, 1, 1, 1, 1);
+    const sectorC1L = new Sector('C1L', 1.5, 12);
 
     showingRoom1.addSector(sectorA1);
     showingRoom1.addSector(sectorA2);
