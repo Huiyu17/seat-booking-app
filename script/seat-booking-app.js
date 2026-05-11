@@ -558,3 +558,7 @@ bookSeatsBtn.addEventListener('click', () => {
     currentService.bookSeats();
     showingRoom1.cacheServices();
 })
+
+if (typeof module !== 'undefined') {
+    module.exports = { SeatBookingApp, Service, Sector };
+}
