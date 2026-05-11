@@ -34,6 +34,23 @@ form {
     cursor: pointer;
     padding: .5rem 1rem;
     background-color: beige;
+    transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.btn:hover { 
+    background-color: #C8B89A; 
+    transform: translateY(-1px); 
+}
+
+.btn:focus-visible { 
+    outline: 2px solid #5B4A2E; 
+    outline-offset: 2px; 
+    background-color: #C8B89A; 
+}
+
+.btn:active { 
+    background-color: #B0A080; 
+    transform: translateY(1px); 
 }
 
 #toast-region {
