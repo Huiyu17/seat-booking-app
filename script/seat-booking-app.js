@@ -264,7 +264,7 @@ class Service {
     }
     removeReservedSeat(seatId) {
         const index = this._seatsReserved.findIndex((seat) => {
-            return seat === seatId
+            return seat.id === seatId
         })
         this._seatsReserved.splice(index, 1)
     }
@@ -687,3 +687,7 @@ sectorsSaveBtn.addEventListener('click', () => {
     alert('Sector prices updated successfully!');
     console.log('Sector prices have been updated');
 })
+
+if (typeof module !== 'undefined') {
+    module.exports = { SeatBookingApp, Service, Sector };
+}
