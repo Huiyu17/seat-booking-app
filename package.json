@@ -30,8 +30,7 @@
     ],
     "collectCoverageFrom": [
       "script/**/*.js",
-      "!script/**/*.test.js",
-      "!script/theme-controls.js"
+      "!script/**/*.test.js"
     ]
   }
 }
