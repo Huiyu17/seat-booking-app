@@ -1,3 +1,4 @@
+@charset "UTF-8";
 *, *::before, *::after {
   margin: 0;
   padding: 0;
@@ -289,4 +290,88 @@ form {
   box-shadow: 2px 2px 3px 0px rgba(0, 0, 0, 0.4);
 }
 
-/*# sourceMappingURL=style.css.map */
+/* cpt304-ui-responsive-home — 主页窄屏自适应（仅本文件负责响应式覆盖） */
+#seat-booking-app {
+  max-width: 100%;
+  width: min(100% - 1.5rem, 80vw);
+  margin-inline: auto;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: stretch;
+  column-gap: clamp(0.75rem, 3vw, 2rem);
+}
+
+#seat-booking-app #settings {
+  flex: 0 1 clamp(14rem, 24vw, 22rem);
+  width: auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+#seat-booking-app #screening-room-1 {
+  flex: 1 1 45%;
+  width: auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+#seat-booking-app #settings .services-list__btns {
+  flex-wrap: wrap;
+  gap: clamp(0.35rem, 2vw, 0.75rem);
+  justify-content: flex-start;
+}
+
+#seat-booking-app #settings .services-list__btns .btn {
+  flex: 1 1 auto;
+  min-width: min(100%, 5.5rem);
+  text-align: center;
+}
+
+#seat-booking-app #settings .btn {
+  padding: clamp(0.35rem, 1.8vw, 0.5rem) clamp(0.45rem, 2.5vw, 1rem);
+  font-size: clamp(0.8rem, 2.2vw, 1rem);
+}
+
+#seat-booking-app #settings .order__footer {
+  gap: clamp(0.35rem, 2vw, 0.75rem);
+}
+
+@media (max-width: 960px) {
+  body {
+    align-items: stretch;
+    padding-inline: clamp(0.35rem, 2vw, 1rem);
+  }
+  #seat-booking-app {
+    flex-direction: column;
+    width: min(100% - 0.75rem, 100vw);
+    row-gap: clamp(0.75rem, 2.5vw, 1.25rem);
+  }
+  #seat-booking-app #settings,
+  #seat-booking-app #screening-room-1 {
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: 100%;
+  }
+  #seat-booking-app #screen {
+    margin-bottom: clamp(3rem, 12vw, 8rem);
+    margin-top: clamp(1rem, 4vw, 3rem);
+    width: min(90%, 28rem);
+  }
+}
+@media (max-width: 600px) {
+  #seat-booking-app #settings .services-list__btns {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  #seat-booking-app #settings .services-list__btns .btn {
+    width: 100%;
+    min-width: 0;
+  }
+  #seat-booking-app #settings .sectors > .btn {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  #seat-booking-app #screen {
+    letter-spacing: clamp(0.08rem, 1.2vw, 0.5rem);
+  }
+}
