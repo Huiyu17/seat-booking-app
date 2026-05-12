@@ -580,8 +580,8 @@ function saveSectorPriceMultipliers(app) {
         saveBtn.style.display = 'none';
     }
 
-    alert('Sector prices updated successfully!');
     console.log('Sector prices have been updated');
+    showToast('Sector prices updated successfully!', 'success');
 
     return true;
 }
@@ -723,7 +723,7 @@ function bookCurrentSeats(app) {
         app.cacheServices();
         app.updateOrderDetails();
 
-        alert(`Booking successful! You have booked ${bookedSeatsCount} seat(s) for $${totalPrice}.`);
+        showToast(`Booking successful! You have booked ${bookedSeatsCount} seat(s) for $${totalPrice}.`, 'success');
 
         return true;
     }
