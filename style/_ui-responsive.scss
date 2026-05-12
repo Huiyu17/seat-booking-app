@@ -33,12 +33,16 @@
 }
 
 #seat-booking-app #screening-room-1 #seats {
-    width: 100%;
-    max-width: 100%;
+    width: max-content;
+    max-width: none;
     min-width: 0;
-    overflow-x: auto;
+    overflow-x: hidden;
     box-sizing: border-box;
     overscroll-behavior-x: contain;
+    transform-origin: top left;
+    padding-inline: 0.4rem;
+    margin-inline: auto;
+    align-self: center;
 }
 
 @container screening (max-width: 52rem) {

@@ -53,7 +53,8 @@ describe('ui-responsive-home', () => {
     expect(css).toContain('#seat-booking-app');
     expect(css).toContain('flex-direction: column');
     expect(css).toContain('container-type: inline-size');
-    expect(css).toMatch(/#seat-booking-app #screening-room-1 #seats[\s\S]*?overflow-x:\s*auto/);
+    expect(css).toMatch(/#seat-booking-app #screening-room-1 #seats[\s\S]*?overflow-x:\s*hidden/);
+    expect(css).toMatch(/#seat-booking-app #screening-room-1 #seats[\s\S]*?transform-origin:\s*top left/);
     expect(css).toContain('.app-top-bar__btn');
     expect(css).toMatch(/html\[data-theme=["']?dark["']?\]/);
   });
