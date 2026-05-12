@@ -313,8 +313,45 @@ form {
   width: auto;
   min-width: 0;
   max-width: 100%;
+  align-items: stretch;
+  overflow-x: hidden;
+  padding-inline: clamp(0.35rem, 2.5vw, 1rem);
+  box-sizing: border-box;
+  container-type: inline-size;
+  container-name: screening;
 }
 
+#seat-booking-app #screening-room-1 #screen {
+  align-self: center;
+}
+
+#seat-booking-app #screening-room-1 #seats {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  box-sizing: border-box;
+  overscroll-behavior-x: contain;
+}
+
+@container screening (max-width: 52rem) {
+  #seat-booking-app #screening-room-1 #seats {
+    grid-column-gap: clamp(0.45rem, 2.8vw, 2rem);
+    grid-row-gap: clamp(0.3rem, 1.5vw, 0.5rem);
+  }
+}
+@container screening (max-width: 36rem) {
+  #seat-booking-app #screening-room-1 #seats {
+    grid-column-gap: clamp(0.25rem, 2vw, 0.75rem);
+    grid-row-gap: 0.35rem;
+  }
+  #seat-booking-app #screening-room-1 .seat {
+    margin: 0.35rem 0.08rem 0.12rem;
+  }
+  #seat-booking-app #screening-room-1 .row {
+    padding-top: 0.12rem;
+  }
+}
 #seat-booking-app #settings .services-list__btns {
   flex-wrap: wrap;
   gap: clamp(0.35rem, 2vw, 0.75rem);

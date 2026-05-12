@@ -16,6 +16,8 @@ test('编译后的样式表包含主页响应式标记与关键断点', () => {
   expect(css).toMatch(/@media[^\{]*max-width:\s*600px/);
   expect(css).toContain('#seat-booking-app');
   expect(css).toContain('flex-direction: column');
+  expect(css).toContain('container-type: inline-size');
+  expect(css).toMatch(/#seat-booking-app #screening-room-1 #seats[\s\S]*?overflow-x:\s*auto/);
 });
 
 test('index.html 保留移动端 viewport，便于窄屏比例与布局生效', () => {
