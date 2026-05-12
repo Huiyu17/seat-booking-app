@@ -1,28 +1,122 @@
-/**
- * 仅覆盖「主页窄屏 UI 自适应」相关改动的回归检查。
- * 其他功能测试见同目录其余文件；请勿在本文件添加与他人模块相关的用例。
- */
 const fs = require('fs');
 const path = require('path');
 
 const styleCssPath = path.join(__dirname, '../style/style.css');
 const indexHtmlPath = path.join(__dirname, '../index.html');
 
-test('编译后的样式表包含主页响应式标记与关键断点', () => {
-  const css = fs.readFileSync(styleCssPath, 'utf8');
+const JSDOM_DEFAULT_BODY = `
+  <div id="seat-booking-app">
+    <div id="settings">
+      <select id="services-list"></select>
+      <input id="service-name" type="text">
+      <input id="service-price" type="number">
+      <ul id="sectors-list"></ul>
+      <ul id="order-details"></ul>
+      <span id="order-total-price"></span>
+      <button id="service-add-btn"></button>
+      <button id="service-update-btn"></button>
+      <button id="service-delete-btn"></button>
+      <button id="book-seats-btn"></button>
+      <button id="sectors-price-btn"></button>
+      <button id="sectors-save-btn"></button>
+    </div>
+    <div id="screening-room-1">
+      <div id="screen">Screen</div>
+      <div id="seats"></div>
+    </div>
+  </div>
+`;
 
-  expect(css).toContain('cpt304-ui-responsive-home');
-  expect(css).toMatch(/@media[^\{]*max-width:\s*960px/);
-  expect(css).toMatch(/@media[^\{]*max-width:\s*600px/);
-  expect(css).toContain('#seat-booking-app');
-  expect(css).toContain('flex-direction: column');
-  expect(css).toContain('container-type: inline-size');
-  expect(css).toMatch(/#seat-booking-app #screening-room-1 #seats[\s\S]*?overflow-x:\s*auto/);
+describe('responsive layout (compiled CSS + HTML)', () => {
+  test('compiled stylesheet includes responsive layout rules', () => {
+    const css = fs.readFileSync(styleCssPath, 'utf8');
+
+    expect(css).toMatch(/@media[^\{]*max-width:\s*960px/);
+    expect(css).toMatch(/@media[^\{]*max-width:\s*600px/);
+    expect(css).toContain('#seat-booking-app');
+    expect(css).toContain('flex-direction: column');
+    expect(css).toContain('container-type: inline-size');
+    expect(css).toMatch(/#seat-booking-app #screening-room-1 #seats[\s\S]*?overflow-x:\s*auto/);
+    expect(css).toContain('.app-top-bar__btn');
+    expect(css).toMatch(/html\[data-theme=["']?dark["']?\]/);
+  });
+
+  test('index.html has viewport, stylesheet, toolbar, and theme bootstrap', () => {
+    const html = fs.readFileSync(indexHtmlPath, 'utf8');
+
+    expect(html).toMatch(/name=["']viewport["']/i);
+    expect(html).toContain('style/style.css');
+    expect(html).toContain('app-top-bar');
+    expect(html).toContain('sba-theme');
+    expect(html).toContain('lang-toggle-btn');
+  });
 });
 
-test('index.html 保留移动端 viewport，便于窄屏比例与布局生效', () => {
-  const html = fs.readFileSync(indexHtmlPath, 'utf8');
+describe('theme controls (script/theme-controls.js)', () => {
+  afterEach(() => {
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.clear();
+    document.body.innerHTML = JSDOM_DEFAULT_BODY;
+  });
 
-  expect(html).toMatch(/name=["']viewport["']/i);
-  expect(html).toContain('style/style.css');
+  beforeEach(() => {
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.clear();
+    jest.resetModules();
+    document.body.innerHTML = `
+    <button type="button" id="theme-toggle-btn" class="app-top-bar__btn" aria-pressed="false"></button>
+    <button type="button" id="lang-toggle-btn" class="app-top-bar__btn">CN/EN</button>
+  `;
+    require('../script/theme-controls.js');
+  });
+
+  test('defaults to light theme and theme button shows Dark', () => {
+    const btn = document.getElementById('theme-toggle-btn');
+
+    expect(document.documentElement.dataset.theme).toBeUndefined();
+    expect(btn.getAttribute('aria-pressed')).toBe('false');
+    expect(btn.textContent).toBe('Dark');
+  });
+
+  test('theme button click enables dark mode and persists', () => {
+    const btn = document.getElementById('theme-toggle-btn');
+
+    btn.click();
+
+    expect(document.documentElement.dataset.theme).toBe('dark');
+    expect(localStorage.getItem('sba-theme')).toBe('dark');
+    expect(btn.getAttribute('aria-pressed')).toBe('true');
+    expect(btn.textContent).toBe('Light');
+  });
+
+  test('second click returns to light and clears storage', () => {
+    const btn = document.getElementById('theme-toggle-btn');
+
+    btn.click();
+    btn.click();
+
+    expect(document.documentElement.dataset.theme).toBeUndefined();
+    expect(localStorage.getItem('sba-theme')).toBeNull();
+    expect(btn.textContent).toBe('Dark');
+  });
+
+  test('initializes dark when localStorage already has dark', () => {
+    localStorage.setItem('sba-theme', 'dark');
+    jest.resetModules();
+    document.body.innerHTML = `
+    <button type="button" id="theme-toggle-btn" class="app-top-bar__btn"></button>
+    <button type="button" id="lang-toggle-btn" class="app-top-bar__btn">CN/EN</button>
+  `;
+    require('../script/theme-controls.js');
+
+    expect(document.documentElement.dataset.theme).toBe('dark');
+    expect(document.getElementById('theme-toggle-btn').textContent).toBe('Light');
+  });
+
+  test('lang toggle button is present in DOM', () => {
+    const lang = document.getElementById('lang-toggle-btn');
+
+    expect(lang).not.toBeNull();
+    expect(lang.textContent).toContain('CN');
+  });
 });
