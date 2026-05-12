@@ -92,6 +92,7 @@ form {
   display: inline-block;
   cursor: pointer;
   padding: 0.5rem 1rem;
+<<<<<<< HEAD
   background-color: var(--color-btn-bg);
   color: var(--color-btn-text);
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -103,6 +104,12 @@ html[data-theme=dark] .btn {
   border-color: rgba(255, 255, 255, 0.12);
 }
 
+=======
+  background-color: beige;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+>>>>>>> main
 .btn:hover {
   background-color: #C8B89A;
   transform: translateY(-1px);
@@ -394,6 +401,7 @@ html[data-theme=dark] .btn {
   justify-content: center;
   align-items: center;
   box-shadow: 2px 2px 3px 0px rgba(0, 0, 0, 0.4);
+<<<<<<< HEAD
   pointer-events: none;
   max-width: min(12rem, 70vw);
   padding: 0.25rem 0.5rem;
@@ -443,4 +451,8 @@ html[data-theme=dark] .btn {
     min-height: 2.25rem;
   }
 }
+=======
+}
+
+>>>>>>> main
 /*# sourceMappingURL=style.css.map */
