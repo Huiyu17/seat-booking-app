@@ -27,7 +27,24 @@ const JSDOM_DEFAULT_BODY = `
   </div>
 `;
 
-describe('responsive layout (compiled CSS + HTML)', () => {
+describe('ui-responsive-home', () => {
+  afterEach(() => {
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.clear();
+    document.body.innerHTML = JSDOM_DEFAULT_BODY;
+  });
+
+  beforeEach(() => {
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.clear();
+    jest.resetModules();
+    document.body.innerHTML = `
+    <button type="button" id="theme-toggle-btn" class="app-top-bar__btn" aria-pressed="false"></button>
+    <button type="button" id="lang-toggle-btn" class="app-top-bar__btn">CN/EN</button>
+  `;
+    require('../script/theme-controls.js');
+  });
+
   test('compiled stylesheet includes responsive layout rules', () => {
     const css = fs.readFileSync(styleCssPath, 'utf8');
 
@@ -49,25 +66,6 @@ describe('responsive layout (compiled CSS + HTML)', () => {
     expect(html).toContain('app-top-bar');
     expect(html).toContain('sba-theme');
     expect(html).toContain('lang-toggle-btn');
-  });
-});
-
-describe('theme controls (script/theme-controls.js)', () => {
-  afterEach(() => {
-    document.documentElement.removeAttribute('data-theme');
-    localStorage.clear();
-    document.body.innerHTML = JSDOM_DEFAULT_BODY;
-  });
-
-  beforeEach(() => {
-    document.documentElement.removeAttribute('data-theme');
-    localStorage.clear();
-    jest.resetModules();
-    document.body.innerHTML = `
-    <button type="button" id="theme-toggle-btn" class="app-top-bar__btn" aria-pressed="false"></button>
-    <button type="button" id="lang-toggle-btn" class="app-top-bar__btn">CN/EN</button>
-  `;
-    require('../script/theme-controls.js');
   });
 
   test('defaults to light theme and theme button shows Dark', () => {
