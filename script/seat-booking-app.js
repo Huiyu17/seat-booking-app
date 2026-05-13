@@ -765,15 +765,14 @@ function attachSeatEvents(app) {
             const seatInfo = document.createElement('div');
             seatInfo.classList.add('seat__info');
             seatInfo.textContent = e.target.id;
-        
-            // 固定气泡到红框区域（#screen 下方、#seats 上方）
+    
             const screeningRoom = document.querySelector('#screening-room-1');
             if (screeningRoom) {
                 seatInfo.style.position = 'absolute';
                 seatInfo.style.left = '50%';
                 seatInfo.style.transform = 'translateX(-50%)';
         
-                // 计算红框区域垂直中心：screen底部 到 seats顶部 的中间
+  
                 const screenEl = document.querySelector('#screen');
                 const seatsEl = document.querySelector('#seats');
                 const roomRect = screeningRoom.getBoundingClientRect();
