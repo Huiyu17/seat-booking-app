@@ -757,16 +757,44 @@ function attachSeatEvents(app) {
     seatElements.forEach((seat) => {
         seat.addEventListener('mouseover', (e) => {
             const oldInfo = document.querySelector('.seat__info');
-
+        
             if (oldInfo) {
                 oldInfo.remove();
             }
-
+        
             const seatInfo = document.createElement('div');
             seatInfo.classList.add('seat__info');
             seatInfo.textContent = e.target.id;
-
-            e.target.parentElement.appendChild(seatInfo);
+    
+            const screeningRoom = document.querySelector('#screening-room-1');
+            if (screeningRoom) {
+                seatInfo.style.position = 'absolute';
+                seatInfo.style.left = '50%';
+                seatInfo.style.transform = 'translateX(-50%)';
+        
+  
+                const screenEl = document.querySelector('#screen');
+                const seatsEl = document.querySelector('#seats');
+                const roomRect = screeningRoom.getBoundingClientRect();
+        
+                if (screenEl && seatsEl) {
+                    const screenBottom = screenEl.getBoundingClientRect().bottom - roomRect.top;
+                    const seatsTop = seatsEl.getBoundingClientRect().top - roomRect.top;
+                    const midY = (screenBottom + seatsTop) / 2;
+        
+                    seatInfo.style.top = `${midY}px`;
+                    seatInfo.style.transform = 'translate(-50%, -50%)';
+                }
+        
+                screeningRoom.appendChild(seatInfo);
+            } else {
+                const screenEl = document.querySelector('#screen');
+if (screenEl) {
+    screenEl.appendChild(seatInfo);
+} else {
+    e.target.parentElement.appendChild(seatInfo);
+}
+            }
         });
 
         seat.addEventListener('mouseleave', () => {
@@ -861,6 +889,72 @@ function attachControlEvents(app) {
     }
 }
 
+function scaleScreeningRoomContent() {
+    const screeningRoom = document.querySelector('#screening-room-1');
+    const seats = document.querySelector('#seats');
+
+    if (!screeningRoom || !seats) return;
+
+    seats.style.transform = 'translateX(0px) scale(1)';
+
+    const screeningRoomStyle = window.getComputedStyle(screeningRoom);
+    const paddingLeft = parseFloat(screeningRoomStyle.paddingLeft) || 0;
+    const paddingRight = parseFloat(screeningRoomStyle.paddingRight) || 0;
+    const safetyPadding = 20;
+
+    const roomContentWidth = Math.max(
+        screeningRoom.clientWidth - paddingLeft - paddingRight,
+        0
+    );
+    const rawSeatsWidth = seats.scrollWidth;
+
+    if (roomContentWidth <= 0 || rawSeatsWidth <= 0) return;
+
+    const fitWidth = Math.max(roomContentWidth - safetyPadding * 2, 0);
+    const scale = Math.min(1, fitWidth / rawSeatsWidth || 1);
+    const scaledSeatsWidth = rawSeatsWidth * scale;
+    let translateX = (roomContentWidth - scaledSeatsWidth) / 2;
+
+    const roomRect = screeningRoom.getBoundingClientRect();
+    const seatsRect = seats.getBoundingClientRect();
+    const hasStableGeometry = roomRect.width > 0 && seatsRect.width > 0;
+
+    if (hasStableGeometry) {
+        const contentLeft = roomRect.left + paddingLeft;
+        const targetLeft = contentLeft + (roomContentWidth - scaledSeatsWidth) / 2;
+        translateX = targetLeft - seatsRect.left;
+    }
+
+    seats.style.transform = `translateX(${translateX}px) scale(${scale})`;
+}
+
+function setupScreeningRoomAutoScale() {
+    const screeningRoom = document.querySelector('#screening-room-1');
+    const seats = document.querySelector('#seats');
+
+    if (!screeningRoom || !seats) return;
+
+    const queueScale = () => {
+        window.requestAnimationFrame(() => {
+            window.requestAnimationFrame(() => {
+                scaleScreeningRoomContent();
+            });
+        });
+    };
+
+    scaleScreeningRoomContent();
+    window.addEventListener('resize', queueScale);
+    window.addEventListener('load', queueScale);
+
+    if (typeof ResizeObserver === 'function') {
+        const observer = new ResizeObserver(() => {
+            queueScale();
+        });
+        observer.observe(screeningRoom);
+        observer.observe(seats);
+    }
+}
+
 function setupSeatBookingApp() {
     const appContainer = document.querySelector('#seat-booking-app');
 
@@ -899,6 +993,7 @@ function setupSeatBookingApp() {
     renderBookedSeats(showingRoom1);
     attachSeatEvents(showingRoom1);
     attachControlEvents(showingRoom1);
+    setupScreeningRoomAutoScale();
 
     window.showingRoom1 = showingRoom1;
 
@@ -949,6 +1044,8 @@ if (typeof module !== 'undefined') {
         renderBookedSeats,
         attachSeatEvents,
         attachControlEvents,
+        scaleScreeningRoomContent,
+        setupScreeningRoomAutoScale,
         setupSeatBookingApp,
         sanitizeText,
         showToast
