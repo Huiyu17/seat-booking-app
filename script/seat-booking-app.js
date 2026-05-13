@@ -885,7 +885,17 @@ function scaleScreeningRoomContent() {
     const fitWidth = Math.max(roomContentWidth - safetyPadding * 2, 0);
     const scale = Math.min(1, fitWidth / rawSeatsWidth || 1);
     const scaledSeatsWidth = rawSeatsWidth * scale;
-    const translateX = Math.max((roomContentWidth - scaledSeatsWidth) / 2, 0);
+    let translateX = (roomContentWidth - scaledSeatsWidth) / 2;
+
+    const roomRect = screeningRoom.getBoundingClientRect();
+    const seatsRect = seats.getBoundingClientRect();
+    const hasStableGeometry = roomRect.width > 0 && seatsRect.width > 0;
+
+    if (hasStableGeometry) {
+        const contentLeft = roomRect.left + paddingLeft;
+        const targetLeft = contentLeft + (roomContentWidth - scaledSeatsWidth) / 2;
+        translateX = targetLeft - seatsRect.left;
+    }
 
     seats.style.transform = `translateX(${translateX}px) scale(${scale})`;
 }
