@@ -37,6 +37,7 @@ describe('ui-responsive-home', () => {
   beforeEach(() => {
     document.documentElement.removeAttribute('data-theme');
     localStorage.clear();
+    localStorage.setItem('sba-cookie-consent', 'accepted');
     jest.resetModules();
     document.body.innerHTML = `
     <button type="button" id="theme-toggle-btn" class="app-top-bar__btn" aria-pressed="false"></button>
@@ -100,6 +101,7 @@ describe('ui-responsive-home', () => {
   });
 
   test('initializes dark when localStorage already has dark', () => {
+    localStorage.setItem('sba-cookie-consent', 'accepted');
     localStorage.setItem('sba-theme', 'dark');
     jest.resetModules();
     document.body.innerHTML = `
