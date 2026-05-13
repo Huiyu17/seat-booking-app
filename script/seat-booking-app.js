@@ -757,16 +757,45 @@ function attachSeatEvents(app) {
     seatElements.forEach((seat) => {
         seat.addEventListener('mouseover', (e) => {
             const oldInfo = document.querySelector('.seat__info');
-
+        
             if (oldInfo) {
                 oldInfo.remove();
             }
-
+        
             const seatInfo = document.createElement('div');
             seatInfo.classList.add('seat__info');
             seatInfo.textContent = e.target.id;
-
-            e.target.parentElement.appendChild(seatInfo);
+        
+            // 固定气泡到红框区域（#screen 下方、#seats 上方）
+            const screeningRoom = document.querySelector('#screening-room-1');
+            if (screeningRoom) {
+                seatInfo.style.position = 'absolute';
+                seatInfo.style.left = '50%';
+                seatInfo.style.transform = 'translateX(-50%)';
+        
+                // 计算红框区域垂直中心：screen底部 到 seats顶部 的中间
+                const screenEl = document.querySelector('#screen');
+                const seatsEl = document.querySelector('#seats');
+                const roomRect = screeningRoom.getBoundingClientRect();
+        
+                if (screenEl && seatsEl) {
+                    const screenBottom = screenEl.getBoundingClientRect().bottom - roomRect.top;
+                    const seatsTop = seatsEl.getBoundingClientRect().top - roomRect.top;
+                    const midY = (screenBottom + seatsTop) / 2;
+        
+                    seatInfo.style.top = `${midY}px`;
+                    seatInfo.style.transform = 'translate(-50%, -50%)';
+                }
+        
+                screeningRoom.appendChild(seatInfo);
+            } else {
+                const screenEl = document.querySelector('#screen');
+if (screenEl) {
+    screenEl.appendChild(seatInfo);
+} else {
+    e.target.parentElement.appendChild(seatInfo);
+}
+            }
         });
 
         seat.addEventListener('mouseleave', () => {
