@@ -27,24 +27,22 @@
                 <label for="services-list">Select service:</label>
                 <select name="services-list" id="services-list"></select>
                 <!-- <form action="#" id="settings-form" class="services-list__form"> -->
-                    <h3>Movie title:</h3>
                     <label for="service-name">Movie title:</label>
                     <input type="text" name="service-name" id="service-name">
-                    <h3>Price base:</h3>
                     <label for="service-price">Price base:</label>
                     <input type="number" name="service-price" id="service-price" min="0" max="100" step="0.01">
                     <div class="services-list__btns">
-                        <button id="service-add-btn" class="btn">Add new</button>
-                        <button id="service-update-btn" class="btn">Save changes</button>
-                        <button id="service-delete-btn" class="btn">Delete</button>
+                        <button id="service-add-btn" class="btn" type="button">Add new</button>
+                        <button id="service-update-btn" class="btn" type="button">Save changes</button>
+                        <button id="service-delete-btn" class="btn" type="button">Delete</button>
                     </div>
                 <!-- </form> -->
             </div>
             <div class="sectors">
-                <button id="sectors-price-btn" class="btn">Edit sectors` prices</button>
+                <button id="sectors-price-btn" class="btn" type="button">Edit sectors` prices</button>
                 <h3>Price multipliers for each sector:</h3>
                 <ul id="sectors-list" class="sectors__list"></ul>
-                <button id="sectors-save-btn" class="btn">Save</button>
+                <button id="sectors-save-btn" class="btn" type="button">Save</button>
             </div>
             <div id="order" class="order">
                 <div class="order__header">
@@ -55,7 +53,7 @@
                 </div>
                 <div id="order-footer" class="order__footer">
                     <span id="order-total-price"></span>
-                    <button id="book-seats-btn" class="btn">Buy</button>
+                    <button id="book-seats-btn" class="btn" type="button">Buy</button>
                 </div>
             </div>
         </div>         
@@ -63,7 +61,7 @@
             <div id="screen">Screen</div>
             <div id="seats"></div>  
         </div>
-    </div>
+    </main>
 
     <script src="script/theme-controls.js"></script>
     <script src="script/seat-booking-app.js"></script>
