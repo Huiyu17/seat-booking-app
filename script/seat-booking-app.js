@@ -148,6 +148,7 @@ class SeatBookingApp {
 
         if (!rawData) {
             console.log("Let's add some services. Use the form on the left.");
+            showToast('No showings found. Use the form to add one.', 'info');
             return;
         }
 
@@ -347,7 +348,6 @@ class Service {
                 seat.classList.remove('seat--reserved');
                 seat.classList.add('seat--booked');
             }
-            syncSeatAriaState(seat);
         });
     }
 }
@@ -424,13 +424,9 @@ class Sector {
             });
 
             seatsInThisRow.forEach((seat) => {
-                const seatElement = document.createElement('button');
-                seatElement.type = 'button';
+                const seatElement = document.createElement('div');
                 seatElement.classList.add('seat');
                 seatElement.setAttribute('id', seat.seat);
-                seatElement.setAttribute('aria-label', `Seat ${seat.seat}`);
-                seatElement.setAttribute('aria-pressed', 'false');
-                seatElement.setAttribute('aria-disabled', 'false');
                 rowElement.appendChild(seatElement);
             });
 
@@ -472,111 +468,6 @@ function sanitizeText(text) {
 
         return entities[char];
     });
-}
-
-function isSeatBooked(seat) {
-    return seat.classList.contains('seat--booked');
-}
-
-function syncSeatAriaState(seat) {
-    const booked = isSeatBooked(seat);
-    if ('disabled' in seat) seat.disabled = booked;
-    seat.setAttribute('aria-disabled', booked ? 'true' : 'false');
-    seat.setAttribute(
-        'aria-pressed',
-        !booked && seat.classList.contains('seat--reserved') ? 'true' : 'false'
-    );
-}
-
-function showSeatInfo(seat) {
-    const oldInfo = document.querySelector('.seat__info');
-    if (oldInfo) oldInfo.remove();
-    if (!seat?.id || !seat.parentElement) return;
-
-    const seatInfo = document.createElement('div');
-    seatInfo.classList.add('seat__info');
-    seatInfo.textContent = seat.id;
-    seat.parentElement.appendChild(seatInfo);
-}
-
-function hideSeatInfo() {
-    const seatInfo = document.querySelector('.seat__info');
-    if (seatInfo) seatInfo.remove();
-}
-
-function parseSeatId(seatId) {
-    const parts = String(seatId).split('-');
-    if (parts.length < 4) return null;
-    const sectorId = `${parts[0]}-${parts[1]}`;
-    const rowNumber = Number.parseInt(parts[2], 10);
-    const seatNumber = Number.parseInt(parts[3], 10);
-    if (!Number.isFinite(rowNumber) || !Number.isFinite(seatNumber)) return null;
-    return {
-        sectorId,
-        rowId: `${sectorId}-${rowNumber}`,
-        rowNumber,
-        seatNumber
-    };
-}
-
-function mapIndex(value, fromCount, toCount) {
-    if (fromCount <= 1 || toCount <= 1) return 1;
-    const ratio = (value - 1) / (fromCount - 1);
-    return 1 + Math.round(ratio * (toCount - 1));
-}
-
-function findNearestAvailableSeatInRowBySeatNumber(row, seatNumber) {
-    if (!row) return null;
-    const seats = Array.from(row.querySelectorAll('.seat'));
-    if (seats.length === 0) return null;
-
-    const clamped = Math.max(1, Math.min(seatNumber, seats.length));
-    for (let offset = 0; offset < seats.length; offset++) {
-        const left = clamped - offset;
-        if (left >= 1 && !isSeatBooked(seats[left - 1])) return seats[left - 1];
-        const right = clamped + offset;
-        if (right <= seats.length && !isSeatBooked(seats[right - 1])) return seats[right - 1];
-    }
-    return null;
-}
-
-function jumpToRowMappedBySeatNumber(sourceSeat, targetRowId) {
-    const sourceInfo = parseSeatId(sourceSeat.id);
-    if (!sourceInfo) return null;
-    const sourceRow = document.getElementById(sourceInfo.rowId);
-    const targetRow = document.getElementById(targetRowId);
-    if (!sourceRow || !targetRow) return null;
-
-    const sourceSeatCount = sourceRow.querySelectorAll('.seat').length;
-    const targetSeatCount = targetRow.querySelectorAll('.seat').length;
-    const mappedSeatNumber = mapIndex(sourceInfo.seatNumber, sourceSeatCount, targetSeatCount);
-    return findNearestAvailableSeatInRowBySeatNumber(targetRow, mappedSeatNumber);
-}
-
-function jumpToSideSector(sourceSeat, targetSectorId, targetSeatNumberInRow) {
-    const targetSector = document.getElementById(targetSectorId);
-    if (!targetSector) return null;
-
-    const sourceRect = sourceSeat.getBoundingClientRect();
-    const sourceY = sourceRect.top + sourceRect.height / 2;
-
-    const targetRows = Array.from(targetSector.querySelectorAll('.row'));
-    let bestSeat = null;
-    let bestDistance = Infinity;
-
-    targetRows.forEach((row) => {
-        const candidate = findNearestAvailableSeatInRowBySeatNumber(row, targetSeatNumberInRow);
-        if (!candidate) return;
-        const rect = candidate.getBoundingClientRect();
-        const y = rect.top + rect.height / 2;
-        const d = Math.abs(y - sourceY);
-        if (d < bestDistance) {
-            bestDistance = d;
-            bestSeat = candidate;
-        }
-    });
-
-    return bestSeat;
 }
 
 function initializeApp(name) {
@@ -689,8 +580,8 @@ function saveSectorPriceMultipliers(app) {
         saveBtn.style.display = 'none';
     }
 
-    alert('Sector prices updated successfully!');
     console.log('Sector prices have been updated');
+    showToast('Sector prices updated successfully!', 'success');
 
     return true;
 }
@@ -708,6 +599,7 @@ function addServiceFromForm(app) {
     app.renderCurrentServiceData();
 
     console.log(`"${result.name}" has been successfully added`);
+    showToast(`"${result.name}" added successfully!`, 'success');
 
     if (typeof localStorageSpace === 'function') {
         localStorageSpace();
@@ -737,6 +629,7 @@ function updateServiceFromForm(app) {
     app.updateOrderDetails();
 
     console.log(`"${result.name}" has been successfully updated`);
+    showToast(`"${result.name}" updated successfully!`, 'success');
 
     if (typeof localStorageSpace === 'function') {
         localStorageSpace();
@@ -768,6 +661,7 @@ function deleteCurrentService(app) {
     app.renderCurrentServiceData();
 
     console.log(`"${inputServiceName}" has been successfully removed`);
+    showToast(`"${inputServiceName}" deleted.`, 'info');
 
     if (typeof localStorageSpace === 'function') {
         localStorageSpace();
@@ -829,7 +723,7 @@ function bookCurrentSeats(app) {
         app.cacheServices();
         app.updateOrderDetails();
 
-        alert(`Booking successful! You have booked ${bookedSeatsCount} seat(s) for $${totalPrice}.`);
+        showToast(`Booking successful! You have booked ${bookedSeatsCount} seat(s) for $${totalPrice}.`, 'success');
 
         return true;
     }
@@ -854,7 +748,6 @@ function renderBookedSeats(app) {
         } else {
             seat.classList.remove('seat--booked');
         }
-        syncSeatAriaState(seat);
     });
 }
 
@@ -862,11 +755,54 @@ function attachSeatEvents(app) {
     const seatElements = document.querySelectorAll('.seat');
 
     seatElements.forEach((seat) => {
-        seat.addEventListener('mouseover', () => showSeatInfo(seat));
+        seat.addEventListener('mouseover', (e) => {
+            const oldInfo = document.querySelector('.seat__info');
+        
+            if (oldInfo) {
+                oldInfo.remove();
+            }
+        
+            const seatInfo = document.createElement('div');
+            seatInfo.classList.add('seat__info');
+            seatInfo.textContent = e.target.id;
+    
+            const screeningRoom = document.querySelector('#screening-room-1');
+            if (screeningRoom) {
+                seatInfo.style.position = 'absolute';
+                seatInfo.style.left = '50%';
+                seatInfo.style.transform = 'translateX(-50%)';
+        
+  
+                const screenEl = document.querySelector('#screen');
+                const seatsEl = document.querySelector('#seats');
+                const roomRect = screeningRoom.getBoundingClientRect();
+        
+                if (screenEl && seatsEl) {
+                    const screenBottom = screenEl.getBoundingClientRect().bottom - roomRect.top;
+                    const seatsTop = seatsEl.getBoundingClientRect().top - roomRect.top;
+                    const midY = (screenBottom + seatsTop) / 2;
+        
+                    seatInfo.style.top = `${midY}px`;
+                    seatInfo.style.transform = 'translate(-50%, -50%)';
+                }
+        
+                screeningRoom.appendChild(seatInfo);
+            } else {
+                const screenEl = document.querySelector('#screen');
+if (screenEl) {
+    screenEl.appendChild(seatInfo);
+} else {
+    e.target.parentElement.appendChild(seatInfo);
+}
+            }
+        });
 
         seat.addEventListener('mouseleave', () => {
-            hideSeatInfo();
-            syncSeatAriaState(seat);
+            const seatInfo = document.querySelector('.seat__info');
+
+            if (seatInfo) {
+                seatInfo.remove();
+            }
         });
 
         seat.addEventListener('click', (e) => {
@@ -880,7 +816,6 @@ function attachSeatEvents(app) {
             }
 
             e.target.classList.toggle('seat--reserved');
-            syncSeatAriaState(seat);
 
             if (seat.classList.contains('seat--reserved')) {
                 currentService.addReservedSeat(e.target);
@@ -889,57 +824,6 @@ function attachSeatEvents(app) {
             }
 
             app.updateOrderDetails();
-        });
-
-        seat.addEventListener('focus', () => showSeatInfo(seat));
-        seat.addEventListener('blur', () => hideSeatInfo());
-
-        seat.addEventListener('keydown', (e) => {
-            const arrowKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
-            if (!arrowKeys.includes(e.key)) return;
-            e.preventDefault();
-
-            const info = parseSeatId(seat.id);
-            const row = seat.parentElement;
-            let targetSeat = null;
-
-            if (e.key === 'ArrowDown') {
-                if (row?.id === 's-A1-2') targetSeat = jumpToRowMappedBySeatNumber(seat, 's-A2-1');
-                else if (row?.id === 's-A2-3') targetSeat = jumpToRowMappedBySeatNumber(seat, 's-B1-1');
-                else if (row?.id === 's-B1-4') targetSeat = jumpToRowMappedBySeatNumber(seat, 's-C1L-1');
-            } else if (e.key === 'ArrowUp') {
-                if (row?.id === 's-A2-1') targetSeat = jumpToRowMappedBySeatNumber(seat, 's-A1-2');
-                else if (row?.id === 's-B1-1') targetSeat = jumpToRowMappedBySeatNumber(seat, 's-A2-3');
-                else if (row?.id === 's-C1L-1') targetSeat = jumpToRowMappedBySeatNumber(seat, 's-B1-4');
-            } else if (e.key === 'ArrowLeft') {
-                if (info?.sectorId === 's-B2L') targetSeat = jumpToSideSector(seat, 's-B1', 20);
-                else if (info?.sectorId === 's-B1' && info.seatNumber === 1) targetSeat = jumpToSideSector(seat, 's-B1L', 1);
-            } else if (e.key === 'ArrowRight') {
-                if (info?.sectorId === 's-B1L') targetSeat = jumpToSideSector(seat, 's-B1', 1);
-                else if (info?.sectorId === 's-B1' && info.seatNumber === 20) targetSeat = jumpToSideSector(seat, 's-B2L', 1);
-            }
-
-            if (!targetSeat && row && info) {
-                if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-                    const step = e.key === 'ArrowRight' ? 1 : -1;
-                    const seats = Array.from(row.querySelectorAll('.seat'));
-                    for (let i = seats.indexOf(seat) + step; i >= 0 && i < seats.length; i += step) {
-                        if (!isSeatBooked(seats[i])) {
-                            targetSeat = seats[i];
-                            break;
-                        }
-                    }
-                } else {
-                    const sector = row.closest('.sector');
-                    const rows = sector ? Array.from(sector.querySelectorAll('.row')) : [];
-                    const rowIndex = rows.indexOf(row);
-                    const rowStep = e.key === 'ArrowDown' ? 1 : -1;
-                    const targetRow = rows[rowIndex + rowStep];
-                    targetSeat = findNearestAvailableSeatInRowBySeatNumber(targetRow, info.seatNumber);
-                }
-            }
-
-            if (targetSeat) targetSeat.focus();
         });
     });
 }
@@ -1005,6 +889,72 @@ function attachControlEvents(app) {
     }
 }
 
+function scaleScreeningRoomContent() {
+    const screeningRoom = document.querySelector('#screening-room-1');
+    const seats = document.querySelector('#seats');
+
+    if (!screeningRoom || !seats) return;
+
+    seats.style.transform = 'translateX(0px) scale(1)';
+
+    const screeningRoomStyle = window.getComputedStyle(screeningRoom);
+    const paddingLeft = parseFloat(screeningRoomStyle.paddingLeft) || 0;
+    const paddingRight = parseFloat(screeningRoomStyle.paddingRight) || 0;
+    const safetyPadding = 20;
+
+    const roomContentWidth = Math.max(
+        screeningRoom.clientWidth - paddingLeft - paddingRight,
+        0
+    );
+    const rawSeatsWidth = seats.scrollWidth;
+
+    if (roomContentWidth <= 0 || rawSeatsWidth <= 0) return;
+
+    const fitWidth = Math.max(roomContentWidth - safetyPadding * 2, 0);
+    const scale = Math.min(1, fitWidth / rawSeatsWidth || 1);
+    const scaledSeatsWidth = rawSeatsWidth * scale;
+    let translateX = (roomContentWidth - scaledSeatsWidth) / 2;
+
+    const roomRect = screeningRoom.getBoundingClientRect();
+    const seatsRect = seats.getBoundingClientRect();
+    const hasStableGeometry = roomRect.width > 0 && seatsRect.width > 0;
+
+    if (hasStableGeometry) {
+        const contentLeft = roomRect.left + paddingLeft;
+        const targetLeft = contentLeft + (roomContentWidth - scaledSeatsWidth) / 2;
+        translateX = targetLeft - seatsRect.left;
+    }
+
+    seats.style.transform = `translateX(${translateX}px) scale(${scale})`;
+}
+
+function setupScreeningRoomAutoScale() {
+    const screeningRoom = document.querySelector('#screening-room-1');
+    const seats = document.querySelector('#seats');
+
+    if (!screeningRoom || !seats) return;
+
+    const queueScale = () => {
+        window.requestAnimationFrame(() => {
+            window.requestAnimationFrame(() => {
+                scaleScreeningRoomContent();
+            });
+        });
+    };
+
+    scaleScreeningRoomContent();
+    window.addEventListener('resize', queueScale);
+    window.addEventListener('load', queueScale);
+
+    if (typeof ResizeObserver === 'function') {
+        const observer = new ResizeObserver(() => {
+            queueScale();
+        });
+        observer.observe(screeningRoom);
+        observer.observe(seats);
+    }
+}
+
 function setupSeatBookingApp() {
     const appContainer = document.querySelector('#seat-booking-app');
 
@@ -1043,10 +993,22 @@ function setupSeatBookingApp() {
     renderBookedSeats(showingRoom1);
     attachSeatEvents(showingRoom1);
     attachControlEvents(showingRoom1);
+    setupScreeningRoomAutoScale();
 
     window.showingRoom1 = showingRoom1;
 
     return showingRoom1;
+}
+
+function showToast(message, type = 'info') {
+    const region = document.getElementById('toast-region');
+    if (!region) return;
+    region.innerHTML = '';
+    const toast = document.createElement('div');
+    toast.className = `toast toast--${type}`;
+    toast.textContent = message;
+    region.appendChild(toast);
+    setTimeout(() => { region.innerHTML = ''; }, 5000);
 }
 
 /**
@@ -1082,7 +1044,10 @@ if (typeof module !== 'undefined') {
         renderBookedSeats,
         attachSeatEvents,
         attachControlEvents,
+        scaleScreeningRoomContent,
+        setupScreeningRoomAutoScale,
         setupSeatBookingApp,
-        sanitizeText
+        sanitizeText,
+        showToast
     };
 }

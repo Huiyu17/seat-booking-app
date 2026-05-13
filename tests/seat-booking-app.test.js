@@ -12,11 +12,16 @@ const {
     bookCurrentSeats,
     renderBookedSeats,
     attachSeatEvents,
-    sanitizeText
+    sanitizeText,
+    scaleScreeningRoomContent,
+    setupScreeningRoomAutoScale,
+    setupSeatBookingApp
 } = require('../script/seat-booking-app');
 
 beforeEach(() => {
     document.body.innerHTML = `
+        <div id="toast-region" role="status" aria-live="polite" aria-atomic="true"></div>
+
         <div id="seat-booking-app">
             <select id="services-list"></select>
 
@@ -297,7 +302,13 @@ describe('saveSectorPriceMultipliers', () => {
         expect(document.querySelector('#price-s-B1').disabled).toBe(true);
         expect(document.querySelector('#sectors-save-btn').style.display).toBe('none');
 
-        expect(global.alert).toHaveBeenCalledWith('Sector prices updated successfully!');
+        const toast = document.querySelector('.toast');
+
+        expect(toast).not.toBeNull();
+        expect(toast.textContent).toBe('Sector prices updated successfully!');
+        expect(toast.classList.contains('toast--success')).toBe(true);
+
+        expect(global.alert).not.toHaveBeenCalled();
         expect(console.log).toHaveBeenCalledWith('Sector prices have been updated');
     });
 });
@@ -483,9 +494,14 @@ describe('bookCurrentSeats', () => {
 
         expect(app.updateOrderDetails).toHaveBeenCalled();
 
-        expect(global.alert).toHaveBeenCalledWith(
-            'Booking successful! You have booked 2 seat(s) for $30.'
-        );
+        const toast = document.querySelector('.toast');
+
+        expect(toast).not.toBeNull();
+        expect(toast.textContent).toBe('Booking successful! You have booked 2 seat(s) for $30.');
+        expect(toast.classList.contains('toast--success')).toBe(true);
+
+        expect(global.alert).not.toHaveBeenCalled();
+        
     });
 
     test('does not book seats when user cancels', () => {
@@ -918,6 +934,153 @@ describe('attachSeatEvents', () => {
         seat.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }));
 
         expect(document.querySelector('.seat__info')).toBeNull();
+    });
+});
+
+describe('screening room auto scale', () => {
+    test('scaleScreeningRoomContent scales and centers seats content', () => {
+        document.body.innerHTML = `
+            <div id="screening-room-1" style="padding-left: 10px; padding-right: 10px;">
+                <div id="seats"></div>
+            </div>
+        `;
+
+        const screeningRoom = document.querySelector('#screening-room-1');
+        const seats = document.querySelector('#seats');
+
+        Object.defineProperty(screeningRoom, 'clientWidth', {
+            configurable: true,
+            value: 300
+        });
+        Object.defineProperty(seats, 'scrollWidth', {
+            configurable: true,
+            value: 500
+        });
+
+        scaleScreeningRoomContent();
+
+        expect(seats.style.transform).toBe('translateX(20px) scale(0.48)');
+    });
+
+    test('scaleScreeningRoomContent exits safely when dimensions are invalid', () => {
+        document.body.innerHTML = `
+            <div id="screening-room-1">
+                <div id="seats"></div>
+            </div>
+        `;
+
+        const screeningRoom = document.querySelector('#screening-room-1');
+        const seats = document.querySelector('#seats');
+
+        Object.defineProperty(screeningRoom, 'clientWidth', {
+            configurable: true,
+            value: 0
+        });
+        Object.defineProperty(seats, 'scrollWidth', {
+            configurable: true,
+            value: 0
+        });
+
+        scaleScreeningRoomContent();
+
+        expect(seats.style.transform).toBe('translateX(0px) scale(1)');
+    });
+
+    test('setupScreeningRoomAutoScale wires listeners and resize observer callback', () => {
+        document.body.innerHTML = `
+            <div id="screening-room-1" style="padding-left: 10px; padding-right: 10px;">
+                <div id="seats"></div>
+            </div>
+        `;
+
+        const screeningRoom = document.querySelector('#screening-room-1');
+        const seats = document.querySelector('#seats');
+
+        Object.defineProperty(screeningRoom, 'clientWidth', {
+            configurable: true,
+            value: 300
+        });
+        Object.defineProperty(seats, 'scrollWidth', {
+            configurable: true,
+            value: 500
+        });
+
+        const resizeCallbacks = [];
+        const observe = jest.fn();
+        const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
+        const rafSpy = jest
+            .spyOn(window, 'requestAnimationFrame')
+            .mockImplementation((cb) => cb());
+
+        global.ResizeObserver = class {
+            constructor(callback) {
+                resizeCallbacks.push(callback);
+            }
+            observe(target) {
+                observe(target);
+            }
+        };
+
+        setupScreeningRoomAutoScale();
+
+        expect(addEventListenerSpy).toHaveBeenCalledWith('resize', expect.any(Function));
+        expect(addEventListenerSpy).toHaveBeenCalledWith('load', expect.any(Function));
+        expect(observe).toHaveBeenCalledWith(screeningRoom);
+        expect(observe).toHaveBeenCalledWith(seats);
+        expect(seats.style.transform).toBe('translateX(20px) scale(0.48)');
+
+        resizeCallbacks[0]();
+
+        expect(rafSpy).toHaveBeenCalled();
+    });
+
+    test('setupSeatBookingApp triggers auto scale setup path', () => {
+        document.body.innerHTML = `
+            <div id="toast-region" role="status" aria-live="polite" aria-atomic="true"></div>
+            <div id="seat-booking-app">
+                <div id="settings">
+                    <select id="services-list"></select>
+                    <input id="service-name" type="text">
+                    <input id="service-price" type="number">
+                    <ul id="sectors-list"></ul>
+                    <ul id="order-details"></ul>
+                    <span id="order-total-price"></span>
+                    <button id="service-add-btn"></button>
+                    <button id="service-update-btn"></button>
+                    <button id="service-delete-btn"></button>
+                    <button id="book-seats-btn"></button>
+                    <button id="sectors-price-btn"></button>
+                    <button id="sectors-save-btn"></button>
+                </div>
+                <div id="screening-room-1">
+                    <div id="screen">Screen</div>
+                    <div id="seats"></div>
+                </div>
+            </div>
+        `;
+
+        const screeningRoom = document.querySelector('#screening-room-1');
+        const seats = document.querySelector('#seats');
+
+        Object.defineProperty(screeningRoom, 'clientWidth', {
+            configurable: true,
+            value: 300
+        });
+        Object.defineProperty(seats, 'scrollWidth', {
+            configurable: true,
+            value: 500
+        });
+
+        global.ResizeObserver = class {
+            constructor() {}
+            observe() {}
+        };
+        jest.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => cb());
+
+        const app = setupSeatBookingApp();
+
+        expect(app).not.toBeNull();
+        expect(window.showingRoom1).toBe(app);
     });
 });
 

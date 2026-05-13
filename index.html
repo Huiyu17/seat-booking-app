@@ -6,10 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <script>
+        try {
+            if (localStorage.getItem('sba-theme') === 'dark') {
+                document.documentElement.dataset.theme = 'dark';
+            }
+        } catch (e) {}
+    </script>
     <title>Project</title>
 </head>
 <body>
-    <main id="seat-booking-app">
+    <div class="app-top-bar" role="toolbar" aria-label="App toolbar">
+        <button type="button" id="theme-toggle-btn" class="app-top-bar__btn" aria-pressed="false">Dark</button>
+        <button type="button" id="lang-toggle-btn" class="app-top-bar__btn" title="Language (not implemented)">CN/EN</button>
+    </div>
+    <div id="toast-region" role="status" aria-live="polite" aria-atomic="true"></div>
+    <div id="seat-booking-app">
         <div id="settings" class="settings">
             <div class="services-list">
                 <label for="services-list">Select service:</label>
@@ -53,6 +65,7 @@
         </div>
     </main>
 
+    <script src="script/theme-controls.js"></script>
     <script src="script/seat-booking-app.js"></script>
 </body>
 </html>
