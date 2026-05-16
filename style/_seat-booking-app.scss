@@ -7,6 +7,8 @@
     // max-height: 90vh;
     
     #screening-room-1 {
+        position: relative;
+        overflow: visible;
         display: flex;
         flex-direction: column;
         background-color: #0d0b31;
@@ -222,19 +224,22 @@
         }
 
         &__info {
-            content: "";
             position: absolute;
-            // bottom: 0rem;
-            right: -5.5rem;
+            width: auto;
             min-width: 5rem;
+            max-width: 10rem;
             min-height: 3rem;
             background-color: rgb(80, 229, 255);
             border-radius: .7rem;
-            z-index: 1;
+            z-index: 9999;
             display: flex;
             justify-content: center;
             align-items: center;
             box-shadow: 2px 2px 3px 0px rgb(0 0 0 / 40%);
+            pointer-events: none;
+            word-break: break-word;
+            text-align: center;
+            padding: .25rem .5rem;
         }
     }
 }
