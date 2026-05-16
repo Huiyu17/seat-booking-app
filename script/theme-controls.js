@@ -1,10 +1,25 @@
 const STORAGE_KEY = 'sba-theme';
+const CONSENT_KEY = 'sba-cookie-consent';
+
+function isPreferenceStorageAllowed() {
+    try {
+        return localStorage.getItem(CONSENT_KEY) === 'accepted';
+    } catch {
+        return false;
+    }
+}
 
 function applyStoredTheme() {
     try {
-        if (localStorage.getItem(STORAGE_KEY) === 'dark') {
+        if (isPreferenceStorageAllowed() && localStorage.getItem(STORAGE_KEY) === 'dark') {
             document.documentElement.dataset.theme = 'dark';
         } else {
+            if (!isPreferenceStorageAllowed()) {
+                try {
+                    localStorage.removeItem(STORAGE_KEY);
+                } catch {
+                }
+            }
             document.documentElement.removeAttribute('data-theme');
         }
     } catch {
@@ -37,9 +52,11 @@ function initThemeControls() {
             }
         } else {
             document.documentElement.dataset.theme = 'dark';
-            try {
-                localStorage.setItem(STORAGE_KEY, 'dark');
-            } catch {
+            if (isPreferenceStorageAllowed()) {
+                try {
+                    localStorage.setItem(STORAGE_KEY, 'dark');
+                } catch {
+                }
             }
         }
         updateThemeButton(themeBtn);

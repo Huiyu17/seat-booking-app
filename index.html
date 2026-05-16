@@ -8,7 +8,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
     <script>
         try {
-            if (localStorage.getItem('sba-theme') === 'dark') {
+            const consent = localStorage.getItem('sba-cookie-consent');
+            if (consent === 'accepted' && localStorage.getItem('sba-theme') === 'dark') {
                 document.documentElement.dataset.theme = 'dark';
             }
         } catch (e) {}
@@ -21,7 +22,17 @@
         <button type="button" id="lang-toggle-btn" class="app-top-bar__btn" title="Language (not implemented)">CN/EN</button>
     </div>
     <div id="toast-region" role="status" aria-live="polite" aria-atomic="true"></div>
-    <div id="seat-booking-app">
+    <div id="cookie-banner" class="cookie-banner" role="dialog" aria-label="Cookie consent" aria-live="polite" aria-modal="false" hidden>
+        <p class="cookie-banner__text">
+            This site uses local storage to save your bookings and preferences.
+            <a href="privacy.html">Privacy Policy</a>
+        </p>
+        <div class="cookie-banner__btns">
+            <button id="cookie-accept-btn" class="btn" type="button">Accept All</button>
+            <button id="cookie-reject-btn" class="btn" type="button">Necessary Only</button>
+        </div>
+    </div>
+    <main id="seat-booking-app">
         <div id="settings" class="settings">
             <div class="services-list">
                 <label for="services-list">Select service:</label>
@@ -63,6 +74,7 @@
         </div>
     </main>
 
+    <script src="script/cookie-banner.js"></script>
     <script src="script/theme-controls.js"></script>
     <script src="script/seat-booking-app.js"></script>
 </body>
