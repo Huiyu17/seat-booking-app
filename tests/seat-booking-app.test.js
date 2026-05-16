@@ -615,6 +615,38 @@ describe('SeatBookingApp basic methods', () => {
         expect(document.querySelector('#order-details').textContent).toContain('$15');
         expect(document.querySelector('#order-total-price').textContent).toBe('Total price: $15');
     });
+
+    test('updateOrderDetails translates total price label when language changes', () => {
+        const app = new SeatBookingApp('testRoom');
+        const service = new Service('Avatar', 10);
+        const sector = new Sector('A1', 1.5, 2);
+
+        app.addService(service);
+        app.addSector(sector);
+        app.setCurrentServiceId(service.getId());
+        app.setPriceMultipliersArray();
+
+        const seat = document.querySelector('#s-A1-1-1');
+        service.addReservedSeat(seat);
+
+        app.updateOrderDetails();
+
+        expect(document.querySelector('#order-total-price').textContent).toBe('Total price: $15');
+
+        window.t = jest.fn((key, values = {}) => {
+            if (key === 'order.totalPrice') {
+                return `总价：$${values.totalPrice}`;
+            }
+
+            return key;
+        });
+
+        app.updateOrderDetails();
+
+        expect(document.querySelector('#order-total-price').textContent).toBe('总价：$15');
+
+        delete window.t;
+    });
 });
 
 describe('Service methods', () => {
@@ -1081,6 +1113,63 @@ describe('screening room auto scale', () => {
 
         expect(app).not.toBeNull();
         expect(window.showingRoom1).toBe(app);
+    });
+
+    test('setupSeatBookingApp rerenders order details when language changes', () => {
+        document.body.innerHTML = `
+            <div id="toast-region" role="status" aria-live="polite" aria-atomic="true"></div>
+            <div id="seat-booking-app">
+                <div id="settings">
+                    <select id="services-list"></select>
+                    <input id="service-name" type="text">
+                    <input id="service-price" type="number">
+                    <ul id="sectors-list"></ul>
+                    <ul id="order-details"></ul>
+                    <span id="order-total-price"></span>
+                    <button id="service-add-btn"></button>
+                    <button id="service-update-btn"></button>
+                    <button id="service-delete-btn"></button>
+                    <button id="book-seats-btn"></button>
+                    <button id="sectors-price-btn"></button>
+                    <button id="sectors-save-btn"></button>
+                </div>
+                <div id="screening-room-1">
+                    <div id="screen">Screen</div>
+                    <div id="seats"></div>
+                </div>
+            </div>
+        `;
+
+        const app = setupSeatBookingApp();
+
+        const service = new Service('Avatar', 10);
+        app.addService(service);
+        app.setCurrentServiceId(service.getId());
+
+        const seat = document.querySelector('#s-A1-1-1');
+        service.addReservedSeat(seat);
+
+        app.updateOrderDetails();
+
+        expect(document.querySelector('#order-total-price').textContent).toBe('Total price: $10');
+
+        window.t = jest.fn((key, values = {}) => {
+            if (key === 'order.totalPrice') {
+                return `总价：$${values.totalPrice}`;
+            }
+
+            return key;
+        });
+
+        document.dispatchEvent(new CustomEvent('languagechange', {
+            detail: {
+                language: 'zh'
+            }
+        }));
+
+        expect(document.querySelector('#order-total-price').textContent).toBe('总价：$10');
+
+        delete window.t;
     });
 });
 

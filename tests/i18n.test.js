@@ -112,6 +112,7 @@ describe('i18n language toggle', () => {
 
         expect(window.t('toast.added', { name: 'Test Movie' })).toBe('“Test Movie” 添加成功！');
         expect(window.t('alert.selectSeat')).toBe('请至少选择一个座位后再购买。');
+        expect(window.t('order.totalPrice', { totalPrice: 24 })).toBe('总价：$24');
     });
 
     test('updates theme button text when language changes', () => {

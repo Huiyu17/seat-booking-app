@@ -31,6 +31,7 @@ const translations = {
         'actions.save': 'Save',
         'order.tickets': 'Tickets:',
         'actions.buy': 'Buy',
+        'order.totalPrice': 'Total price: ${totalPrice}',
         'screen': 'Screen',
 
         'toast.noShowings': 'No showings found. Use the form to add one.',
@@ -97,6 +98,7 @@ const translations = {
         'actions.save': '保存',
         'order.tickets': '票务：',
         'actions.buy': '购买',
+        'order.totalPrice': '总价：${totalPrice}',
         'screen': '屏幕',
 
         'toast.noShowings': '未找到场次。请使用表单添加一个场次。',

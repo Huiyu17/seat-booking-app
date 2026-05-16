@@ -259,7 +259,13 @@ class SeatBookingApp {
         });
 
         const totalPriceElement = document.createElement('span');
-        totalPriceElement.textContent = `Total price: $${parseFloat(totalPrice.toFixed(2))}`;
+        totalPriceElement.textContent = translateText(
+            'order.totalPrice',
+            'Total price: ${totalPrice}',
+            {
+                totalPrice: parseFloat(totalPrice.toFixed(2))
+            }
+        );
         totalPriceContainer.appendChild(totalPriceElement);
     }
 }
@@ -1200,6 +1206,10 @@ function setupSeatBookingApp() {
     setupScreeningRoomAutoScale();
 
     window.showingRoom1 = showingRoom1;
+
+    document.addEventListener('languagechange', () => {
+        showingRoom1.updateOrderDetails();
+    });
 
     return showingRoom1;
 }
