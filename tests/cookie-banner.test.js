@@ -50,8 +50,9 @@ describe('cookie-banner', () => {
         expect(banner.hidden).toBe(true);
     });
 
-    test('Necessary Only stores consent, clears theme storage, removes dark theme, and hides banner', () => {
+    test('Necessary Only stores consent, clears theme and language storage, removes dark theme, and hides banner', () => {
         localStorage.setItem('sba-theme', 'dark');
+        localStorage.setItem('sba-language', 'zh');
         document.documentElement.dataset.theme = 'dark';
 
         require('../script/cookie-banner.js');
@@ -63,6 +64,7 @@ describe('cookie-banner', () => {
 
         expect(localStorage.getItem('sba-cookie-consent')).toBe('necessary');
         expect(localStorage.getItem('sba-theme')).toBeNull();
+        expect(localStorage.getItem('sba-language')).toBeNull();
         expect(document.documentElement.dataset.theme).toBeUndefined();
         expect(banner.hidden).toBe(true);
     });
