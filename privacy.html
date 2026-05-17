@@ -4,30 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style/style.css">
-    <title>Privacy Policy</title>
+    <title data-i18n="privacy.title">Privacy Policy</title>
 </head>
 <body>
+    <div class="app-top-bar" role="toolbar" aria-label="App toolbar" data-i18n-aria-label="toolbar.label">
+        <button type="button" id="lang-toggle-btn" class="app-top-bar__btn" title="Switch language" aria-label="Switch language">中/En</button>
+    </div>
+
     <main class="privacy-policy">
-        <h1>Privacy Policy</h1>
-        <p>Last updated: May 2026</p>
+        <h1 data-i18n="privacy.title">Privacy Policy</h1>
+        <p data-i18n="privacy.updated">Last updated: May 2026</p>
 
-        <h2>1. What We Collect</h2>
-        <p>This app stores seat booking data and theme preferences locally on your device using <code>localStorage</code>. No personal data is transmitted to any server.</p>
+        <h2 data-i18n="privacy.collectTitle">1. What We Collect</h2>
+        <p data-i18n="privacy.collectText">This app stores seat booking data, language preference, and theme preference locally on your device using localStorage. No personal data is transmitted to any server.</p>
 
-        <h2>2. Why We Collect It</h2>
-        <p>To remember your bookings and display preferences between sessions.</p>
+        <h2 data-i18n="privacy.whyTitle">2. Why We Collect It</h2>
+        <p data-i18n="privacy.whyText">To remember your bookings and display preferences between sessions.</p>
 
-        <h2>3. How It Is Used</h2>
-        <p>Data is used solely to provide app functionality. It is never shared with third parties.</p>
+        <h2 data-i18n="privacy.useTitle">3. How It Is Used</h2>
+        <p data-i18n="privacy.useText">Data is used solely to provide app functionality. It is never shared with third parties.</p>
 
-        <h2>4. Cookie & Storage Choices</h2>
-        <p>You may clear stored data at any time via your browser settings or developer tools (Application → Local Storage).</p>
+        <h2 data-i18n="privacy.choiceTitle">4. Cookie & Storage Choices</h2>
+        <p data-i18n="privacy.choiceText">You may clear stored data at any time via your browser settings or developer tools (Application → Local Storage).</p>
 
-        <h2>5. Contact</h2>
-        <p>For questions, contact the project team.</p>
+        <h2 data-i18n="privacy.contactTitle">5. Contact</h2>
+        <p data-i18n="privacy.contactText">For questions, contact the project team.</p>
 
-        <p><a href="index.html">← Back to App</a></p>
+        <p><a href="index.html" data-i18n="privacy.back">← Back to App</a></p>
     </main>
+
+    <script src="script/i18n.js"></script>
 </body>
 </html>
-

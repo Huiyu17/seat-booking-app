@@ -138,8 +138,13 @@ class SeatBookingApp {
                 JSON.stringify(this.getServicesArray())
             );
         } else {
-            window.alert('Access to localStorage in this browser is not available. Data cannot be saved.');
-            throw new Error('Access to localStorage in this browser is not available. Data cannot be saved.');
+            const message = translateText(
+                'alert.storageUnavailable',
+                'Access to localStorage in this browser is not available. Data cannot be saved.'
+            );
+
+            window.alert(message);
+            throw new Error(message);
         }
     }
 
@@ -148,7 +153,10 @@ class SeatBookingApp {
 
         if (!rawData) {
             console.log("Let's add some services. Use the form on the left.");
-            showToast('No showings found. Use the form to add one.', 'info');
+            showToast(
+                translateText('toast.noShowings', 'No showings found. Use the form to add one.'),
+                'info'
+            );
             return;
         }
 
@@ -251,7 +259,13 @@ class SeatBookingApp {
         });
 
         const totalPriceElement = document.createElement('span');
-        totalPriceElement.textContent = `Total price: $${parseFloat(totalPrice.toFixed(2))}`;
+        totalPriceElement.textContent = translateText(
+            'order.totalPrice',
+            'Total price: ${totalPrice}',
+            {
+                totalPrice: parseFloat(totalPrice.toFixed(2))
+            }
+        );
         totalPriceContainer.appendChild(totalPriceElement);
     }
 }
@@ -475,6 +489,20 @@ function sanitizeText(text) {
     });
 }
 
+function translateText(key, fallback, values = {}) {
+    let message = fallback;
+
+    if (typeof window !== 'undefined' && typeof window.t === 'function') {
+        message = window.t(key, values);
+    }
+
+    Object.keys(values).forEach((name) => {
+        message = String(message).split(`{${name}}`).join(values[name]);
+    });
+
+    return message;
+}
+
 function isSeatBooked(seat) {
     return seat.classList.contains('seat--booked');
 }
@@ -621,7 +649,7 @@ function validateServiceForm() {
     const priceInput = document.querySelector('#service-price');
 
     if (!nameInput || !priceInput) {
-        alert('Service form elements not found.');
+        alert(translateText('alert.serviceFormMissing', 'Service form elements not found.'));
         return false;
     }
 
@@ -629,14 +657,14 @@ function validateServiceForm() {
     const inputServicePrice = priceInput.value.trim();
 
     if (!inputServiceName) {
-        alert('Please enter a Movie title.');
+        alert(translateText('alert.movieTitleRequired', 'Please enter a Movie title.'));
         return false;
     }
 
     const price = parseFloat(inputServicePrice);
 
     if (isNaN(price) || price <= 0) {
-        alert('Please enter a valid Price base (must be a positive number).');
+        alert(translateText('alert.priceInvalid', 'Please enter a valid Price base (must be a positive number).'));
         return false;
     }
 
@@ -653,14 +681,14 @@ function validateSectorPriceMultipliers() {
         const inputValue = input.value.trim();
 
         if (!inputValue) {
-            alert('Please fill in all Price multipliers.');
+            alert(translateText('alert.sectorMultiplierEmpty', 'Please fill in all Price multipliers.'));
             return false;
         }
 
         const newMultiplier = parseFloat(inputValue);
 
         if (isNaN(newMultiplier) || newMultiplier < 0) {
-            alert('Please enter valid Price multipliers.');
+            alert(translateText('alert.sectorMultiplierInvalid', 'Please enter valid Price multipliers.'));
             return false;
         }
     }
@@ -719,7 +747,10 @@ function saveSectorPriceMultipliers(app) {
     }
 
     console.log('Sector prices have been updated');
-    showToast('Sector prices updated successfully!', 'success');
+    showToast(
+        translateText('toast.sectorPricesUpdated', 'Sector prices updated successfully!'),
+        'success'
+    );
 
     return true;
 }
@@ -737,7 +768,12 @@ function addServiceFromForm(app) {
     app.renderCurrentServiceData();
 
     console.log(`"${result.name}" has been successfully added`);
-    showToast(`"${result.name}" added successfully!`, 'success');
+    showToast(
+        translateText('toast.added', '"{name}" added successfully!', {
+            name: result.name
+        }),
+        'success'
+    );
 
     if (typeof localStorageSpace === 'function') {
         localStorageSpace();
@@ -754,7 +790,7 @@ function updateServiceFromForm(app) {
     const currentService = app.getCurrentService();
 
     if (!currentService) {
-        alert('Please select a service first.');
+        alert(translateText('alert.selectService', 'Please select a service first.'));
         return false;
     }
 
@@ -767,7 +803,12 @@ function updateServiceFromForm(app) {
     app.updateOrderDetails();
 
     console.log(`"${result.name}" has been successfully updated`);
-    showToast(`"${result.name}" updated successfully!`, 'success');
+    showToast(
+        translateText('toast.updated', '"{name}" updated successfully!', {
+            name: result.name
+        }),
+        'success'
+    );
 
     if (typeof localStorageSpace === 'function') {
         localStorageSpace();
@@ -788,7 +829,7 @@ function deleteCurrentService(app) {
     });
 
     if (indexToDelete === -1) {
-        alert('Please select a service first.');
+        alert(translateText('alert.selectService', 'Please select a service first.'));
         return false;
     }
 
@@ -799,7 +840,12 @@ function deleteCurrentService(app) {
     app.renderCurrentServiceData();
 
     console.log(`"${inputServiceName}" has been successfully removed`);
-    showToast(`"${inputServiceName}" deleted.`, 'info');
+    showToast(
+        translateText('toast.deleted', '"{name}" deleted.', {
+            name: inputServiceName
+        }),
+        'info'
+    );
 
     if (typeof localStorageSpace === 'function') {
         localStorageSpace();
@@ -812,14 +858,14 @@ function bookCurrentSeats(app) {
     const currentService = app.getCurrentService();
 
     if (!currentService) {
-        alert('Please select a service first.');
+        alert(translateText('alert.selectService', 'Please select a service first.'));
         return false;
     }
 
     const reservedSeats = currentService.getReservedSeats();
 
     if (reservedSeats.length === 0) {
-        alert('Please select at least one seat before booking.');
+        alert(translateText('alert.selectSeat', 'Please select at least one seat before booking.'));
         return false;
     }
 
@@ -848,12 +894,19 @@ function bookCurrentSeats(app) {
 
     totalPrice = parseFloat(totalPrice.toFixed(2));
 
-    const confirmationMessage =
-        `Confirm booking for "${serviceName}"?\n\n` +
-        `Selected seats:${seatDetails}\n\n` +
-        `Total price: $${totalPrice}\n\n` +
-        `Click OK to confirm booking.`;
-
+    const confirmationMessage = translateText(
+        'confirm.booking',
+        'Confirm booking for "{serviceName}"?\n\n' +
+        'Selected seats:{seatDetails}\n\n' +
+        'Total price: ${totalPrice}\n\n' +
+        'Click OK to confirm booking.',
+        {
+            serviceName,
+            seatDetails,
+            totalPrice
+        }
+    );
+    
     if (confirm(confirmationMessage)) {
         const bookedSeatsCount = reservedSeats.length;
 
@@ -861,7 +914,13 @@ function bookCurrentSeats(app) {
         app.cacheServices();
         app.updateOrderDetails();
 
-        showToast(`Booking successful! You have booked ${bookedSeatsCount} seat(s) for $${totalPrice}.`, 'success');
+        showToast(
+            translateText('toast.bookingSuccessful', 'Booking successful! You have booked {count} seat(s) for ${totalPrice}.', {
+                count: bookedSeatsCount,
+                totalPrice
+            }),
+            'success'
+        );
 
         return true;
     }
@@ -910,7 +969,7 @@ function attachSeatEvents(app) {
             const currentService = app.getCurrentService();
 
             if (!currentService) {
-                alert('Please add or select a service first.');
+                alert(translateText('alert.addOrSelectService', 'Please add or select a service first.'));
                 return;
             }
 
@@ -1147,6 +1206,10 @@ function setupSeatBookingApp() {
     setupScreeningRoomAutoScale();
 
     window.showingRoom1 = showingRoom1;
+
+    document.addEventListener('languagechange', () => {
+        showingRoom1.updateOrderDetails();
+    });
 
     return showingRoom1;
 }

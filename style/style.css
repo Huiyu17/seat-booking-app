@@ -150,6 +150,7 @@ form {
 .privacy-policy p {
   margin-bottom: 0.75rem;
 }
+
 #seat-booking-app {
   display: flex;
   flex-direction: row;
@@ -158,6 +159,8 @@ form {
   width: 80vw;
 }
 #seat-booking-app #screening-room-1 {
+  position: relative;
+  overflow: visible;
   display: flex;
   flex-direction: column;
   background-color: #0d0b31;
@@ -168,7 +171,6 @@ form {
   align-items: center;
 }
 #seat-booking-app #screen {
-  position: relative;
   background-color: rgb(232, 231, 241);
   margin-bottom: 8rem;
   margin-top: 3rem;
@@ -340,10 +342,9 @@ form {
 }
 #seat-booking-app .seat__info {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 6rem;
+  width: auto;
+  min-width: 5rem;
+  max-width: 10rem;
   min-height: 3rem;
   background-color: rgb(80, 229, 255);
   border-radius: 0.7rem;
@@ -353,11 +354,18 @@ form {
   align-items: center;
   box-shadow: 2px 2px 3px 0px rgba(0, 0, 0, 0.4);
   pointer-events: none;
-  word-break: break-all;
+  word-break: break-word;
   text-align: center;
   padding: 0.25rem 0.5rem;
 }
 
+@media (max-width: 768px) {
+  #seat-booking-app .seat {
+    min-width: 24px;
+    min-height: 24px;
+    margin: 8px 4px 4px;
+  }
+}
 #seat-booking-app {
   max-width: 100%;
   width: min(100% - 1.5rem, 80vw);
@@ -404,9 +412,7 @@ form {
   margin-inline: auto;
   align-self: center;
 }
-#screening-room-1 {
-  position: relative;
-}
+
 @container screening (max-width: 52rem) {
   #seat-booking-app #screening-room-1 #seats {
     grid-column-gap: clamp(0.45rem, 2.8vw, 2rem);
@@ -628,3 +634,5 @@ html[data-theme=dark] #seat-booking-app .seat__info {
   background-color: #4ec8e0;
   color: #0a0a12;
 }
+
+/*# sourceMappingURL=style.css.map */
